@@ -107,7 +107,11 @@ class BaseStep(ABC):
         """
         # Create step directory
         step_dir_name = f"step_{self.step_number:02d}_{self.step_name.lower().replace(' ', '_')}"
-        step_dir = self.file_manager.create_directory(f"{output_dir}/{step_dir_name}")
+        
+        # Create step directory directly in the output_dir (don't prepend file manager base)
+        step_dir = f"{output_dir}/{step_dir_name}"
+        import os
+        os.makedirs(step_dir, exist_ok=True)
         
         # Create filename
         filename = f"{self.step_name}{self.file_extension}"

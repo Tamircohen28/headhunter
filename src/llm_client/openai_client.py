@@ -1,9 +1,10 @@
 """
 OpenAI client implementation.
-Handles all OpenAI API interactions using the generic prompt system.
+Handles all OpenAI API interactions with progress indication.
 """
 
 import json
+import time
 from typing import Dict, Any, Tuple, Optional
 from loguru import logger
 from openai import OpenAI
@@ -11,58 +12,39 @@ from openai import OpenAI
 from .base_client import BaseLLMClient
 from .base_api_config import BaseAPIConfig
 from ..utils.config import Config
-from ..utils.logger import log_api_call, log_api_response
 from ..utils.exceptions import LLMError
+from ..utils.logger import log_api_call, log_api_response
 
 
 class OpenAIClient(BaseLLMClient):
-    """
-    OpenAI client implementation.
-    
-    This client is completely generic and doesn't know about specific prompt types.
-    It only handles OpenAI API interactions and uses the generic prompt system.
-    """
+    """OpenAI client for executing prompts and managing API calls."""
     
     def __init__(self, config: Config):
-        """
-        Initialize the OpenAI client.
-        
-        Args:
-            config: Application configuration instance
-        """
-        # Create API config from application config
         api_config = BaseAPIConfig(
             api_key=config.openai_api_key,
-            model=config.openai_model_browsing,  # Default model
+            model=config.openai_model_browsing,
             temperature=config.openai_temperature,
             max_tokens=config.openai_max_tokens,
             timeout=config.openai_timeout
         )
-        
-        # Initialize base client
         super().__init__(api_config)
-        
-        # Store application config for creating different API configs
         self.app_config = config
-        
-        # Initialize OpenAI client
         self.client = OpenAI(api_key=api_config.api_key)
-        
         logger.info("🔧 OpenAI client initialized successfully")
     
     def _make_api_call(self, prompt: 'BasePrompt', config: BaseAPIConfig) -> Tuple[Any, bool]:
         """
-        Make an API call to OpenAI.
+        Make an API call to OpenAI with progress indication.
         
         Args:
-            prompt: The prompt object to send
+            prompt: The prompt to execute
             config: API configuration for this call
             
         Returns:
-            Tuple of (response_data, success_status)
+            Tuple of (response_content, success_status)
         """
         try:
-            # Log API call
+            # Log API call details
             log_api_call(
                 f"OpenAI API Call - {prompt.__class__.__name__}",
                 config.model,
@@ -70,150 +52,91 @@ class OpenAIClient(BaseLLMClient):
                 conversation_id=self.conversation_id
             )
             
-            # Make API call
+            # Prepare messages
+            messages = [{"role": "user", "content": str(prompt)}]
+            
+            # Make the API call
+            logger.info(f"📡 Sending request to OpenAI API (model: {config.model})")
+            
             response = self.client.chat.completions.create(
                 model=config.model,
-                messages=[
-                    {"role": "user", "content": str(prompt)}
-                ],
+                messages=messages,
                 temperature=config.temperature,
-                max_tokens=config.max_tokens
+                max_tokens=config.max_tokens,
+                timeout=config.timeout
             )
             
-            # Log API response
-            response_content = response.choices[0].message.content
-            response_length = len(response_content) if response_content else 0
-            response_preview = response_content[:100] if response_content else "No content"
-            
-            log_api_response(
-                f"OpenAI API Response - {prompt.__class__.__name__}",
-                config.model,
-                response.usage,
-                response.choices[0].finish_reason,
-                response_length,
-                response_preview
-            )
-            
-            # Handle response
-            if not response_content:
-                if response.choices[0].finish_reason == "tool_calls":
-                    logger.warning("⚠️ API response has tool_calls but no content")
-                    return {"error": "API response has tool_calls but no content"}, False
-                else:
-                    logger.error("❌ API response has no content")
-                    return {"error": "API response has no content"}, False
-            
-            # Add to conversation context
-            self.add_to_conversation("user", str(prompt))
-            self.add_to_conversation("assistant", response_content)
-            
-            return response_content, True
-            
+            # Extract response content
+            if response.choices and len(response.choices) > 0:
+                response_content = response.choices[0].message.content
+                
+                # Log successful response
+                log_api_response(
+                    f"OpenAI API Response - {prompt.__class__.__name__}",
+                    config.model,
+                    len(response_content),
+                    conversation_id=self.conversation_id
+                )
+                
+                logger.info(f"✅ Received response from OpenAI API ({len(response_content)} characters)")
+                return response_content, True
+            else:
+                error_msg = "No response choices received from OpenAI API"
+                logger.error(f"❌ {error_msg}")
+                return {"error": error_msg}, False
+                
         except Exception as e:
             error_msg = f"OpenAI API call failed: {str(e)}"
-            logger.error(error_msg)
+            logger.error(f"❌ {error_msg}")
             return {"error": error_msg}, False
     
     def create_api_config(self, model: str, **kwargs) -> BaseAPIConfig:
         """
-        Create a new API config for specific calls.
+        Create a new API configuration with overrides.
         
         Args:
-            model: The model to use
+            model: Model to use
             **kwargs: Additional configuration overrides
             
         Returns:
-            New API configuration object
+            New BaseAPIConfig instance
         """
-        config = BaseAPIConfig(
-            api_key=self.app_config.openai_api_key,
-            model=model,
-            temperature=self.app_config.openai_temperature,
-            max_tokens=self.app_config.openai_max_tokens,
-            timeout=self.app_config.openai_timeout
-        )
+        base_config = {
+            "api_key": self.config.api_key,
+            "model": model,
+            "temperature": self.config.temperature,
+            "max_tokens": self.config.max_tokens,
+            "timeout": self.config.timeout
+        }
         
-        # Apply any overrides
-        if kwargs:
-            config.update(**kwargs)
+        # Apply overrides
+        base_config.update(kwargs)
         
-        return config
+        return BaseAPIConfig(**base_config)
     
-    def start_deep_research(self, prompt: str, metadata: Dict[str, Any]) -> Tuple[str, bool]:
+    def start_deep_research(self, prompt: str, **kwargs) -> Tuple[str, bool]:
         """
-        Start a deep research task using OpenAI Responses API.
+        Start a deep research session using OpenAI Responses API.
         
-        Args:
-            prompt: The research prompt to execute
-            metadata: Additional metadata for the research task
-            
-        Returns:
-            Tuple of (response_id, success_status)
+        Note: This is a placeholder for future implementation.
         """
-        try:
-            logger.info("🚀 Starting Deep Research task")
-            
-            # Create API config for deep research
-            config = self.create_api_config(
-                model=self.app_config.openai_model_deep_research,
-                temperature=0.1  # Lower temperature for research tasks
-            )
-            
-            # Make the API call
-            response = self.client.beta.threads.runs.create(
-                thread_id=metadata.get('thread_id'),
-                assistant_id=metadata.get('assistant_id'),
-                instructions=prompt
-            )
-            
-            response_id = response.id
-            logger.info(f"✅ Deep Research started with response_id: {response_id}")
-            
-            return response_id, True
-            
-        except Exception as e:
-            error_msg = f"Failed to start deep research: {str(e)}"
-            logger.error(error_msg)
-            return "", False
+        logger.warning("⚠️ Deep research not yet implemented - using regular completion")
+        return self.execute_prompt(prompt, **kwargs)
     
-    def poll_research_status(self, response_id: str) -> Tuple[Dict[str, Any], bool]:
+    def poll_research_status(self, research_id: str) -> Tuple[Dict[str, Any], bool]:
         """
-        Poll the status of a deep research task.
+        Poll the status of a deep research session.
         
-        Args:
-            response_id: The ID of the research task
-            
-        Returns:
-            Tuple of (status_info, success_status)
+        Note: This is a placeholder for future implementation.
         """
-        try:
-            # This would need to be implemented based on the specific API being used
-            # For now, return a placeholder
-            logger.debug(f"Polling research status for: {response_id}")
-            return {"status": "unknown"}, True
-            
-        except Exception as e:
-            error_msg = f"Failed to poll research status: {str(e)}"
-            logger.error(error_msg)
-            return {"error": error_msg}, False
+        logger.warning("⚠️ Research polling not yet implemented")
+        return {"status": "not_implemented"}, False
     
-    def get_research_result(self, response_id: str) -> Tuple[Dict[str, Any], bool]:
+    def get_research_result(self, research_id: str) -> Tuple[Any, bool]:
         """
-        Get the final result of a completed research task.
+        Get the result of a completed deep research session.
         
-        Args:
-            response_id: The ID of the research task
-            
-        Returns:
-            Tuple of (research_result, success_status)
+        Note: This is a placeholder for future implementation.
         """
-        try:
-            # This would need to be implemented based on the specific API being used
-            # For now, return a placeholder
-            logger.debug(f"Getting research result for: {response_id}")
-            return {"result": "placeholder"}, True
-            
-        except Exception as e:
-            error_msg = f"Failed to get research result: {str(e)}"
-            logger.error(error_msg)
-            return {"error": error_msg}, False
+        logger.warning("⚠️ Research result retrieval not yet implemented")
+        return {"error": "not_implemented"}, False

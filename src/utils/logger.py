@@ -110,13 +110,11 @@ def log_api_call(operation: str, model: str, prompt_length: int, conversation_id
     })
 
 
-def log_api_response(operation: str, model: str, usage: Any, finish_reason: str, response_length: int, response_preview: str) -> None:
+def log_api_response(operation: str, model: str, response_length: int, conversation_id: Optional[str] = None) -> None:
     """Log API response."""
     log("info", f"📡 API Response: {operation}", {
         "operation": operation,
         "model": model,
-        "usage": usage,
-        "finish_reason": finish_reason,
         "response_length": response_length,
-        "response_preview": response_preview
+        "conversation_id": conversation_id
     })

@@ -1,8 +1,10 @@
 """
-Base LLM client class.
-Provides a generic interface for all LLM operations.
+Base LLM client for all language model interactions.
+Provides a generic interface for executing prompts.
 """
 
+import time
+import threading
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Tuple, Optional
 from loguru import logger
@@ -13,116 +15,128 @@ from ..prompts.base_prompt import BasePrompt
 
 class BaseLLMClient(ABC):
     """
-    Base class for LLM clients.
+    Base class for all LLM clients.
     
-    This class provides a generic interface for LLM operations and ensures
-    all clients can handle any prompt type through a single generic method.
+    Provides a generic interface for executing prompts,
+    independent of specific prompt types.
     """
     
     def __init__(self, config: BaseAPIConfig):
-        """
-        Initialize the LLM client.
-        
-        Args:
-            config: API configuration object
-        """
         self.config = config
         self.conversation_id: Optional[str] = None
         self.conversation_messages = []
-        
+        self._api_call_in_progress = False
+        self._last_api_call_time = None
         logger.info("🔧 LLM client initialized successfully")
     
     @abstractmethod
     def _make_api_call(self, prompt: BasePrompt, config: BaseAPIConfig) -> Tuple[Any, bool]:
-        """
-        Make an API call to the LLM service.
-        
-        Args:
-            prompt: The prompt object to send
-            config: API configuration for this call
-            
-        Returns:
-            Tuple of (response_data, success_status)
-        """
+        """Make the actual API call. Must be implemented by subclasses."""
         pass
     
     def execute_prompt(self, prompt: BasePrompt, config: Optional[BaseAPIConfig] = None) -> Tuple[Any, bool]:
         """
-        Execute a prompt using the LLM service.
-        
-        This is the main generic method that all prompt types use.
-        The client doesn't need to know what type of prompt it's processing.
+        Execute a prompt with progress indication and error handling.
         
         Args:
-            prompt: Any prompt object that inherits from BasePrompt
-            config: Optional API configuration override for this call
+            prompt: The prompt to execute
+            config: Optional API config override
             
         Returns:
-            Tuple of (response_data, success_status)
+            Tuple of (response_content, success_status)
         """
+        if config is None:
+            config = self.config
+        
         try:
-            # Use provided config or default
-            api_config = config or self.config
+            # Start progress indication
+            self._start_progress_indication()
             
-            # Log the prompt execution
+            # Log the API call
             logger.info(f"🚀 Executing prompt: {prompt.__class__.__name__}")
-            logger.debug(f"📝 Prompt length: {len(str(prompt))} characters")
-            logger.debug(f"⚙️ Using model: {api_config.model}")
             
             # Make the API call
-            result, success = self._make_api_call(prompt, api_config)
+            response_content, success = self._make_api_call(prompt, config)
             
             if success:
-                logger.info(f"✅ Prompt executed successfully")
-                # Add to conversation context if available
-                if hasattr(prompt, 'add_to_conversation'):
-                    prompt.add_to_conversation(self.conversation_id)
+                # Add to conversation history
+                self.add_to_conversation("user", str(prompt))
+                self.add_to_conversation("assistant", response_content)
+                
+                logger.info("✅ Prompt executed successfully")
+                return response_content, True
             else:
-                logger.error(f"❌ Prompt execution failed")
-            
-            return result, success
-            
+                logger.error(f"❌ Prompt execution failed: {response_content}")
+                return response_content, False
+                
         except Exception as e:
             error_msg = f"Prompt execution error: {str(e)}"
-            logger.error(error_msg)
+            logger.error(f"❌ {error_msg}")
             return {"error": error_msg}, False
+        finally:
+            # Stop progress indication
+            self._stop_progress_indication()
     
-    def set_conversation_context(self, conversation_id: str) -> None:
-        """
-        Set the conversation context for this client.
+    def _start_progress_indication(self):
+        """Start progress indication for API calls."""
+        self._api_call_in_progress = True
+        self._last_api_call_time = time.time()
         
-        Args:
-            conversation_id: The conversation ID to use
-        """
-        self.conversation_id = conversation_id
-        logger.debug(f"💬 Set conversation context: {conversation_id}")
+        # Start progress thread
+        self._progress_thread = threading.Thread(target=self._show_progress, daemon=True)
+        self._progress_thread.start()
+    
+    def _stop_progress_indication(self):
+        """Stop progress indication."""
+        self._api_call_in_progress = False
+    
+    def _show_progress(self):
+        """Show progress dots while waiting for API response."""
+        dots = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        i = 0
+        
+        while self._api_call_in_progress:
+            elapsed = time.time() - self._last_api_call_time
+            dot = dots[i % len(dots)]
+            
+            # Show progress every 2 seconds
+            if int(elapsed) % 2 == 0:
+                logger.info(f"⏳ Waiting for API response... {dot} (elapsed: {int(elapsed)}s)")
+            
+            time.sleep(1)
+            i += 1
     
     def add_to_conversation(self, role: str, content: str) -> None:
-        """
-        Add a message to the conversation context.
-        
-        Args:
-            role: The role of the message (user/assistant)
-            content: The message content
-        """
-        if self.conversation_id:
-            self.conversation_messages.append({
-                "role": role,
-                "content": content
-            })
-            logger.debug(f"💬 Added {role} message to conversation (length: {len(content)})")
+        """Add a message to the conversation history."""
+        self.conversation_messages.append({
+            "role": role,
+            "content": content,
+            "timestamp": time.time()
+        })
     
-    def get_conversation_messages(self) -> list:
-        """
-        Get all conversation messages.
-        
-        Returns:
-            List of conversation messages
-        """
+    def get_conversation_history(self) -> list:
+        """Get the conversation history."""
         return self.conversation_messages.copy()
     
     def clear_conversation(self) -> None:
-        """Clear the conversation context."""
+        """Clear the conversation history."""
         self.conversation_messages.clear()
         self.conversation_id = None
-        logger.debug("💬 Conversation context cleared")
+    
+    def set_conversation_id(self, conversation_id: str) -> None:
+        """Set the conversation ID for tracking."""
+        self.conversation_id = conversation_id
+    
+    def get_conversation_id(self) -> Optional[str]:
+        """Get the current conversation ID."""
+        return self.conversation_id
+    
+    def is_api_call_in_progress(self) -> bool:
+        """Check if an API call is currently in progress."""
+        return self._api_call_in_progress
+    
+    def get_last_api_call_duration(self) -> Optional[float]:
+        """Get the duration of the last API call."""
+        if self._last_api_call_time and not self._api_call_in_progress:
+            return time.time() - self._last_api_call_time
+        return None

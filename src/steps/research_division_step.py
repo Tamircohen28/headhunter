@@ -33,7 +33,7 @@ class ResearchDivisionStep(BaseStep):
         
         return result
     
-    def _process_result(self, result: str) -> Dict[str, Any]:
+    def _process_result(self, result: str) -> str:
         """Process research division result and convert to Markdown."""
         try:
             # Parse JSON response
@@ -48,14 +48,9 @@ class ResearchDivisionStep(BaseStep):
             
             research_division = json.loads(json_content)
             
-            # Convert to Markdown format
+            # Convert to Markdown format and return directly
             markdown_content = self._convert_to_markdown(research_division)
-            
-            # Return both JSON and Markdown
-            return {
-                "json_data": research_division,
-                "markdown_content": markdown_content
-            }
+            return markdown_content
             
         except json.JSONDecodeError as e:
             raise ValueError(f"Failed to parse research division response: {e}")
@@ -65,16 +60,13 @@ class ResearchDivisionStep(BaseStep):
         try:
             markdown_lines = []
             
-            # Add header
-            markdown_lines.append("# Research Prompt Division")
-            markdown_lines.append("")
-            
             # Add summary information
             total_agents = research_division.get('total_agents', 0)
             total_topics = research_division.get('total_topics', 0)
             
-            markdown_lines.append(f"**Total Agents:** {total_agents}")
-            markdown_lines.append(f"**Total Topics:** {total_topics}")
+            markdown_lines.append(f"## total agents {total_agents}")
+            markdown_lines.append("")
+            markdown_lines.append(f"## total topics {total_topics}")
             markdown_lines.append("")
             
             # Process each research task
@@ -82,37 +74,27 @@ class ResearchDivisionStep(BaseStep):
                 agent_id = task.get('agent_id', 'Unknown')
                 topics = task.get('topics', [])
                 topic_indices = task.get('topic_indices', [])
-                description = task.get('description', '')
                 prompt = task.get('prompt', '')
                 
                 # Agent header
-                markdown_lines.append(f"## {agent_id}")
-                markdown_lines.append("")
+                markdown_lines.append(f"## AGENT {agent_id}")
+                markdown_lines.append("### Topics:")
                 
-                # Topics and indices
-                markdown_lines.append("**Topics:**")
+                # Topics with indices
                 for i, topic in enumerate(topics):
                     index = topic_indices[i] if i < len(topic_indices) else 'N/A'
-                    markdown_lines.append(f"- {topic} (Index: {index})")
+                    markdown_lines.append(f"[{index}]: {topic}")
+                
                 markdown_lines.append("")
                 
-                # Description
-                if description:
-                    markdown_lines.append("**Description:**")
-                    markdown_lines.append(description)
-                    markdown_lines.append("")
-                
-                # Research prompt
-                markdown_lines.append("**Research Prompt:**")
-                markdown_lines.append("")
-                markdown_lines.append("```markdown")
+                # Full prompt for this agent
                 markdown_lines.append(prompt)
-                markdown_lines.append("```")
                 markdown_lines.append("")
-                markdown_lines.append("---")
+                markdown_lines.append("--")
                 markdown_lines.append("")
             
+            # Join with proper blank lines (not \n)
             return "\n".join(markdown_lines)
             
         except Exception as e:
-            return f"# Research Prompt Division\n\nError converting to Markdown: {str(e)}"
+            return f"## Error converting to Markdown\n\n{str(e)}"
