@@ -1,100 +1,69 @@
 """
 Base prompt class for all prompt implementations.
-Provides a generic interface for prompt generation and rendering.
+Provides a generic interface for prompt construction and response deserialization.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Tuple, Generic, TypeVar
+from .base_prompt_request import BasePromptRequest
+
+# Generic type for the output of deserialization
+T = TypeVar('T')
 
 
-class BasePrompt(ABC):
+class BasePrompt(ABC, Generic[T]):
     """
     Base class for all prompt implementations.
     
-    This class provides a generic interface for prompt generation and ensures
-    all prompts can be converted to strings for API calls.
+    This class provides a generic interface for prompt construction and ensures
+    all prompts can construct prompts and deserialize responses.
     """
     
-    def __init__(self, **kwargs):
+    def __init__(self, request: BasePromptRequest):
         """
-        Initialize the prompt with variables.
+        Initialize the prompt with a request object.
         
         Args:
-            **kwargs: Variables needed for prompt generation
+            request: The input request containing all necessary data
         """
-        self.variables = kwargs
-        self._validate_variables()
+        self.request = request
     
     @abstractmethod
-    def _validate_variables(self) -> None:
+    def construct(self) -> str:
         """
-        Validate that all required variables are present.
+        Construct the prompt from the input request.
         
-        Raises:
-            ValueError: If required variables are missing
+        Returns:
+            The complete prompt string ready to be sent to the LLM
         """
         pass
     
     @abstractmethod
-    def _generate_template(self) -> str:
+    def deserialize(self, response: str) -> Tuple[bool, T]:
         """
-        Generate the prompt template string.
+        Deserialize the LLM response.
         
+        Args:
+            response: The raw response from the LLM
+            
         Returns:
-            The prompt template as a string
+            Tuple of (success: bool, result: T) where T is the expected output type
         """
         pass
     
-    def render(self) -> str:
-        """
-        Render the prompt with the current variables.
-        
-        Returns:
-            The rendered prompt string ready for API calls
-        """
-        template = self._generate_template()
-        return template.format(**self.variables)
+    def get_request_data(self) -> Dict[str, Any]:
+        """Get the data from the request object."""
+        return self.request.get_data()
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get a specific value from the request data."""
+        return self.request.get(key, default)
     
     def __str__(self) -> str:
         """
-        String representation of the rendered prompt.
+        String representation of the constructed prompt.
         
         Returns:
-            The rendered prompt string
+            The constructed prompt string
         """
-        return self.render()
-    
-    def update_variables(self, **kwargs) -> None:
-        """
-        Update prompt variables.
-        
-        Args:
-            **kwargs: New variables to update
-        """
-        self.variables.update(kwargs)
-        self._validate_variables()
-    
-    def get_variable(self, key: str, default: Any = None) -> Any:
-        """
-        Get a variable value.
-        
-        Args:
-            key: Variable name
-            default: Default value if key not found
-            
-        Returns:
-            Variable value or default
-        """
-        return self.variables.get(key, default)
-    
-    def has_variable(self, key: str) -> bool:
-        """
-        Check if a variable exists.
-        
-        Args:
-            key: Variable name
-            
-        Returns:
-            True if variable exists, False otherwise
-        """
-        return key in self.variables
+        return self.construct()

@@ -14,8 +14,8 @@ from ..storage_manager.run_manager import RunManager
 from ..steps import (
     JobScrapingStep,
     JobAnalysisStep,
-    CustomGPTInstructionsStep,
-    ResearchDivisionStep
+    # CustomGPTInstructionsStep,  # Commented out - not needed for first 2 steps
+    # ResearchDivisionStep  # Commented out - not needed for first 2 steps
 )
 
 
@@ -46,8 +46,8 @@ class Pipeline:
         self.steps = {
             STEP_DETAILS[BaseStepEnum.JOB_SCRAPING].index: JobScrapingStep(config, file_manager),
             STEP_DETAILS[BaseStepEnum.JOB_ANALYSIS].index: JobAnalysisStep(config, file_manager),
-            STEP_DETAILS[BaseStepEnum.CUSTOM_GPT_INSTRUCTIONS].index: CustomGPTInstructionsStep(config, file_manager),
-            STEP_DETAILS[BaseStepEnum.RESEARCH_DIVISION].index: ResearchDivisionStep(config, file_manager)
+            # STEP_DETAILS[BaseStepEnum.CUSTOM_GPT_INSTRUCTIONS].index: CustomGPTInstructionsStep(config, file_manager),
+            # STEP_DETAILS[BaseStepEnum.RESEARCH_DIVISION].index: ResearchDivisionStep(config, file_manager)
         }
         
         log("info", "🔧 Pipeline initialized successfully")
@@ -64,8 +64,8 @@ class Pipeline:
             run_dir, run_state = self.run_manager.create_run_directory(self.config.test_job_url)
             
             log("info", f"🚀 Starting pipeline run: {run_state['run_name']}")
-            if run_state.get("is_continuation"):
-                log("info", f"🔄 Continuing from run: {run_state['continued_from']}")
+            # if run_state.get("is_continuation"):  # Commented out - no continuation during testing
+            #     log("info", f"🔄 Continuing from run: {run_state['continued_from']}")
             
             # Initialize results
             results = {}
@@ -77,12 +77,12 @@ class Pipeline:
                 step = self.steps[step_number]
                 
                 # Check if we can skip this step (already completed in previous run)
-                if self._can_skip_step(run_dir, step_number, run_state):
-                    log("info", f"⏭️ Skipping step {step_number} (already completed in previous run)")
-                    previous_result = self._get_previous_step_result(run_dir, step_number)
-                    if previous_result:
-                        results[f"step_{step_number}"] = previous_result
-                        continue
+                # if self._can_skip_step(run_dir, step_number, run_state):  # Commented out - no skipping during testing
+                #     log("info", f"⏭️ Skipping step {step_number} (already completed in previous run)")
+                #     previous_result = self._get_previous_step_result(run_dir, step_number)
+                #     if previous_result:
+                #         results[f"step_{step_number}"] = previous_result
+                #         continue
                 
                 # Execute step
                 step_result, success = self._execute_step(step, step_number, results, run_dir, run_state)
@@ -155,10 +155,10 @@ class Pipeline:
                     job_description=previous_results["step_1"],
                     job_url=self.config.test_job_url
                 )
-            elif step.step_enum == BaseStepEnum.CUSTOM_GPT_INSTRUCTIONS:
-                result, success = step.execute(run_dir, job_analysis=previous_results["step_2"])
-            elif step.step_enum == BaseStepEnum.RESEARCH_DIVISION:
-                result, success = step.execute(run_dir, job_analysis=previous_results["step_2"])
+            # elif step.step_enum == BaseStepEnum.CUSTOM_GPT_INSTRUCTIONS:
+            #     result, success = step.execute(run_dir, job_analysis=previous_results["step_2"])
+            # elif step.step_enum == BaseStepEnum.RESEARCH_DIVISION:
+            #     result, success = step.execute(run_dir, job_analysis=previous_results["step_2"])
             else:
                 raise ValueError(f"Unknown step enum: {step.step_enum}")
             

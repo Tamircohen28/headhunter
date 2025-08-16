@@ -77,6 +77,60 @@ class BaseLLMClient(ABC):
             # Stop progress indication
             self._stop_progress_indication()
     
+    def execute_prompt_text(self, prompt_text: str, config: Optional[BaseAPIConfig] = None) -> Tuple[Any, bool]:
+        """
+        Execute raw prompt text with progress indication and error handling.
+        
+        Args:
+            prompt_text: The raw prompt text to execute
+            config: Optional API config override
+            
+        Returns:
+            Tuple of (response_content, success_status)
+        """
+        if config is None:
+            config = self.config
+        
+        try:
+            # Start progress indication
+            self._start_progress_indication()
+            
+            # Log the API call
+            logger.info(f"🚀 Executing prompt text ({len(prompt_text)} characters)")
+            
+            # Create a simple prompt wrapper for the API call
+            class TextPrompt:
+                def __init__(self, text: str):
+                    self.text = text
+                    self.__class__.__name__ = "TextPrompt"
+                
+                def __str__(self):
+                    return self.text
+            
+            text_prompt = TextPrompt(prompt_text)
+            
+            # Make the API call
+            response_content, success = self._make_api_call(text_prompt, config)
+            
+            if success:
+                # Add to conversation history
+                self.add_to_conversation("user", prompt_text)
+                self.add_to_conversation("assistant", response_content)
+                
+                logger.info("✅ Prompt text executed successfully")
+                return response_content, True
+            else:
+                logger.error(f"❌ Prompt text execution failed: {response_content}")
+                return response_content, False
+                
+        except Exception as e:
+            error_msg = f"Prompt text execution error: {str(e)}"
+            logger.error(f"❌ {error_msg}")
+            return {"error": error_msg}, False
+        finally:
+            # Stop progress indication
+            self._stop_progress_indication()
+    
     def _start_progress_indication(self):
         """Start progress indication for API calls."""
         self._api_call_in_progress = True

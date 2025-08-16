@@ -67,19 +67,23 @@ class RunManager:
         job_hash = self._hash_job_url(job_url)
         
         # Check if we have previous runs for this job
-        if job_hash in self.recent_runs and self.recent_runs[job_hash]:
-            # Find the most recent incomplete run
-            incomplete_run = self._find_incomplete_run(job_hash)
-            
-            if incomplete_run:
-                log("info", f"🔄 Found incomplete run: {incomplete_run}")
-                return self._continue_run(job_url, job_hash, incomplete_run)
-            else:
-                log("info", f"✅ All previous runs are complete, starting new run")
-                return self._create_new_run(job_url, job_hash, is_continuation=False)
-        else:
-            log("info", f"🚀 No previous run found, starting new run for job")
-            return self._create_new_run(job_url, job_hash, is_continuation=False)
+        # if job_hash in self.recent_runs and self.recent_runs[job_hash]:  # Commented out - no continuation during testing
+        #     # Find the most recent incomplete run
+        #     incomplete_run = self._find_incomplete_run(job_hash)
+        #     
+        #     if incomplete_run:
+        #         log("info", f"🔄 Found incomplete run: {incomplete_run}")
+        #         return self._continue_run(job_url, job_hash, incomplete_run)
+        #     else:
+        #         log("info", f"✅ All previous runs are complete, starting new run")
+        #         return self._create_new_run(job_url, job_hash, is_continuation=False)
+        # else:
+        #     log("info", f"🚀 No previous run found, starting new run for job")
+        #     return self._create_new_run(job_url, job_hash, is_continuation=False)
+        
+        # Always start fresh during testing
+        log("info", f"🚀 Starting fresh run for job (continuation disabled)")
+        return self._create_new_run(job_url, job_hash, is_continuation=False)
     
     def _find_incomplete_run(self, job_hash: str) -> Optional[str]:
         """Find the most recent incomplete run for a job hash."""

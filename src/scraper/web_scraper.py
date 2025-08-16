@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 from loguru import logger
 from typing import Optional
-from pathlib import Path
 
 from ..utils.config import Config
 from ..utils.constants import *
@@ -44,6 +43,9 @@ class WebScraper:
             
         Returns:
             Extracted job description text
+            
+        Raises:
+            ScrapingError: If all scraping methods fail
         """
         try:
             logger.info(f"🌐 Scraping job page: {url}")
@@ -60,14 +62,17 @@ class WebScraper:
                 logger.info("✅ Successfully extracted content using requests")
                 return content
             
-            # If both methods fail or get minimal content, use mock job description
-            logger.warning("⚠️ Web scraping failed or got minimal content, using mock job description")
-            return self._get_mock_job_description()
+            # If both methods fail, raise an error
+            error_msg = "All web scraping methods failed to extract meaningful content"
+            logger.error(f"❌ {error_msg}")
+            raise ScrapingError(error_msg)
             
+        except ScrapingError:
+            raise
         except Exception as e:
-            logger.error(f"❌ Job scraping failed: {e}")
-            logger.info("📄 Falling back to mock job description")
-            return self._get_mock_job_description()
+            error_msg = f"Job scraping failed with unexpected error: {e}"
+            logger.error(f"❌ {error_msg}")
+            raise ScrapingError(error_msg)
     
     def _extract_with_playwright(self, url: str) -> Optional[str]:
         """Extract content using Playwright for JavaScript-heavy pages."""
@@ -192,59 +197,3 @@ class WebScraper:
             return False
         
         return True
-
-    def _get_mock_job_description(self) -> str:
-        """Get mock job description for testing purposes."""
-        try:
-            mock_file = Path("mock_job_description.txt")
-            if mock_file.exists():
-                with open(mock_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    logger.info("📄 Loaded mock job description from file")
-                    return content
-            else:
-                # Fallback to hardcoded mock content
-                logger.info("📄 Using hardcoded mock job description")
-                return """Senior Software Engineer - Edge AI
-
-Company: Microsoft
-Location: Redmond, WA (Hybrid)
-
-About the Role:
-We are looking for a Senior Software Engineer to join our Edge AI team. You will be responsible for developing and optimizing AI models for edge devices, implementing efficient inference engines, and collaborating with cross-functional teams.
-
-Key Responsibilities:
-- Design and implement AI models optimized for edge devices
-- Develop efficient inference engines and runtime systems
-- Optimize model performance for resource-constrained environments
-- Collaborate with hardware and software teams
-- Mentor junior engineers and contribute to technical decisions
-
-Required Skills:
-- Strong programming skills in Python, C++, or Rust
-- Experience with machine learning frameworks (PyTorch, TensorFlow)
-- Knowledge of computer vision, NLP, or other AI domains
-- Understanding of edge computing and embedded systems
-- Experience with model optimization and quantization
-
-Preferred Skills:
-- Experience with ONNX, TensorRT, or similar frameworks
-- Knowledge of GPU programming (CUDA, OpenCL)
-- Experience with cloud AI services (Azure ML, AWS SageMaker)
-- Understanding of MLOps and model deployment
-
-Hiring Process:
-1. Technical phone screen
-2. Take-home coding assignment
-3. On-site technical interviews (4-5 rounds)
-4. System design and behavioral questions
-5. Final team fit discussion
-
-Benefits:
-- Competitive salary and equity
-- Comprehensive health coverage
-- Flexible work arrangements
-- Professional development opportunities"""
-        except Exception as e:
-            logger.error(f"❌ Failed to load mock job description: {e}")
-            return "Error: Could not load job description"

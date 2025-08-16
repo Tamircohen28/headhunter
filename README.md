@@ -19,8 +19,7 @@ job4u/                          # Project root
 │   ├── utils/                   # Shared utilities and configuration
 │   ├── llm_client/              # LLM service interface and implementations
 │   ├── scraper/                 # Web interactions and scraping
-│   ├── custom_prompt/           # Custom GPT prompt generation
-│   ├── research_prompt/         # Research prompt division
+│   ├── prompts/                 # All prompt generation and management
 │   ├── tasks_manager/           # LLM task execution and management
 │   ├── conversation_manager/    # Conversation handling and state
 │   └── storage_manager/         # Storage and persistence
