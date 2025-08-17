@@ -14,7 +14,7 @@ class BaseStepEnum(Enum):
     """Enum for all pipeline steps."""
     JOB_SCRAPING = "job_scraping"
     JOB_ANALYSIS = "job_analysis"
-    RESEARCH_PROMPT = "research_prompt"
+    # RESEARCH_PROMPT = "research_prompt"  # Commented out - not needed for first 2 steps
 
 
 @dataclass
@@ -42,14 +42,14 @@ STEP_DETAILS = {
         step_class=None,  # Will be set dynamically
         file_extension=".json",
         output_type="json"
-    ),
-    BaseStepEnum.RESEARCH_PROMPT: StepDetails(
-        index=3,
-        name="Construct Research Prompt & Run Deep Research",
-        step_class=None,  # Will be set dynamically
-        file_extension=".md",
-        output_type="markdown"
     )
+    # BaseStepEnum.RESEARCH_PROMPT: StepDetails(  # Commented out - not needed for first 2 steps
+    #     index=3,
+    #     name="Construct Research Prompt & Run Deep Research",
+    #     step_class=None,  # Will be set dynamically
+    #     file_extension=".md",
+    #     output_type="markdown"
+    # )
 }
 
 
@@ -57,11 +57,11 @@ def set_step_classes():
     """Set the step classes dynamically to avoid circular imports."""
     from ..steps.job_scraping_step import JobScrapingStep
     from ..steps.job_analysis_step import JobAnalysisStep
-    from ..steps.research_prompt_step import ResearchPromptStep
+    # from ..steps.research_prompt_step import ResearchPromptStep  # Commented out - not needed for first 2 steps
     
     STEP_DETAILS[BaseStepEnum.JOB_SCRAPING].step_class = JobScrapingStep
     STEP_DETAILS[BaseStepEnum.JOB_ANALYSIS].step_class = JobAnalysisStep
-    STEP_DETAILS[BaseStepEnum.RESEARCH_PROMPT].step_class = ResearchPromptStep
+    # STEP_DETAILS[BaseStepEnum.RESEARCH_PROMPT].step_class = ResearchPromptStep  # Commented out
 
 
 # Legacy mappings for backward compatibility (can be removed later)
@@ -73,22 +73,22 @@ STEP_OUTPUT_TYPES = {details.index: details.output_type for enum_value, details 
 # Step Classes Mapping
 STEP_CLASSES = {
     1: "JobScrapingStep",
-    2: "JobMetadataExtractionWithWebResearchStep",
-    3: "ResearchPromptStep"
+    2: "JobMetadataExtractionWithWebResearchStep"
+    # 3: "ResearchPromptStep"  # Commented out - not needed for first 2 steps
 }
 
 # Step File Extensions
 STEP_FILE_EXTENSIONS = {
     1: ".txt",
-    2: ".json",
-    3: ".md"
+    2: ".json"
+    # 3: ".md"  # Commented out - not needed for first 2 steps
 }
 
 # Step Output Types
 STEP_OUTPUT_TYPES = {
     1: "text",
-    2: "json",
-    3: "markdown"
+    2: "json"
+    # 3: "markdown"  # Commented out - not needed for first 2 steps
 }
 
 # Logging Configuration

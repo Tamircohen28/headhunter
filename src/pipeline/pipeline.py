@@ -13,8 +13,8 @@ from ..utils.constants import BaseStepEnum, STEP_DETAILS, set_step_classes
 from ..storage_manager.run_manager import RunManager
 from ..steps import (
     JobScrapingStep,
-    JobAnalysisStep,
-    ResearchPromptStep
+    JobAnalysisStep
+    # ResearchPromptStep  # Commented out - not needed for first 2 steps
 )
 
 
@@ -44,8 +44,8 @@ class Pipeline:
         # Initialize all steps using enums and constants
         self.steps = {
             STEP_DETAILS[BaseStepEnum.JOB_SCRAPING].index: JobScrapingStep(config, file_manager),
-            STEP_DETAILS[BaseStepEnum.JOB_ANALYSIS].index: JobAnalysisStep(config, file_manager),
-            STEP_DETAILS[BaseStepEnum.RESEARCH_PROMPT].index: ResearchPromptStep(config, file_manager)
+            STEP_DETAILS[BaseStepEnum.JOB_ANALYSIS].index: JobAnalysisStep(config, file_manager)
+            # STEP_DETAILS[BaseStepEnum.RESEARCH_PROMPT].index: ResearchPromptStep(config, file_manager)  # Commented out - not needed for first 2 steps
         }
         
         log("info", "🔧 Pipeline initialized successfully")
@@ -123,8 +123,8 @@ class Pipeline:
                     job_description=previous_results["step_1"],
                     job_url=self.config.test_job_url
                 )
-            elif step.step_enum == BaseStepEnum.RESEARCH_PROMPT:
-                result, success = step.execute(run_dir, job_metadata=previous_results["step_2"]) 
+            # elif step.step_enum == BaseStepEnum.RESEARCH_PROMPT:  # Commented out - not needed for first 2 steps
+            #     result, success = step.execute(run_dir, job_metadata=previous_results["step_2"]) 
             else:
                 raise ValueError(f"Unknown step enum: {step.step_enum}")
             
