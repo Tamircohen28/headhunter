@@ -14,8 +14,7 @@ class BaseStepEnum(Enum):
     """Enum for all pipeline steps."""
     JOB_SCRAPING = "job_scraping"
     JOB_ANALYSIS = "job_analysis"
-    # CUSTOM_GPT_INSTRUCTIONS = "custom_gpt_instructions"  # Commented out - not needed for first 2 steps
-    # RESEARCH_DIVISION = "research_division"  # Commented out - not needed for first 2 steps
+    RESEARCH_PROMPT = "research_prompt"
 
 
 @dataclass
@@ -44,20 +43,13 @@ STEP_DETAILS = {
         file_extension=".json",
         output_type="json"
     ),
-    # BaseStepEnum.CUSTOM_GPT_INSTRUCTIONS: StepDetails(
-    #     index=3,
-    #     name="Custom GPT Instructions",
-    #     step_class=None,  # Will be set dynamically
-    #     file_extension=".md",
-    #     output_type="markdown"
-    # ),
-    # BaseStepEnum.RESEARCH_DIVISION: StepDetails(
-    #     index=4,
-    #     name="Research Topic Division",
-    #     step_class=None,  # Will be set dynamically
-    #     file_extension=".md",
-    #     output_type="markdown"
-    # )
+    BaseStepEnum.RESEARCH_PROMPT: StepDetails(
+        index=3,
+        name="Construct Research Prompt & Run Deep Research",
+        step_class=None,  # Will be set dynamically
+        file_extension=".md",
+        output_type="markdown"
+    )
 }
 
 
@@ -65,13 +57,11 @@ def set_step_classes():
     """Set the step classes dynamically to avoid circular imports."""
     from ..steps.job_scraping_step import JobScrapingStep
     from ..steps.job_analysis_step import JobAnalysisStep
-    # from ..steps.custom_gpt_instructions_step import CustomGPTInstructionsStep  # Commented out - not needed for first 2 steps
-    # from ..steps.research_division_step import ResearchDivisionStep  # Commented out - not needed for first 2 steps
+    from ..steps.research_prompt_step import ResearchPromptStep
     
     STEP_DETAILS[BaseStepEnum.JOB_SCRAPING].step_class = JobScrapingStep
     STEP_DETAILS[BaseStepEnum.JOB_ANALYSIS].step_class = JobAnalysisStep
-    # STEP_DETAILS[BaseStepEnum.CUSTOM_GPT_INSTRUCTIONS].step_class = CustomGPTInstructionsStep  # Commented out
-    # STEP_DETAILS[BaseStepEnum.RESEARCH_DIVISION].step_class = ResearchDivisionStep  # Commented out
+    STEP_DETAILS[BaseStepEnum.RESEARCH_PROMPT].step_class = ResearchPromptStep
 
 
 # Legacy mappings for backward compatibility (can be removed later)
@@ -83,25 +73,22 @@ STEP_OUTPUT_TYPES = {details.index: details.output_type for enum_value, details 
 # Step Classes Mapping
 STEP_CLASSES = {
     1: "JobScrapingStep",
-    2: "JobMetadataExtractionWithWebResearchStep",  # Updated to reflect web search capabilities
-    # 3: "CustomGPTInstructionsStep",  # Commented out - not needed for first 2 steps
-    # 4: "ResearchDivisionStep"  # Commented out - not needed for first 2 steps
+    2: "JobMetadataExtractionWithWebResearchStep",
+    3: "ResearchPromptStep"
 }
 
 # Step File Extensions
 STEP_FILE_EXTENSIONS = {
-    1: ".txt",      # Job scraping - raw text
-    2: ".json",     # Job metadata extraction - structured JSON
-    # 3: ".md",       # Custom GPT instructions - markdown  # Commented out
-    # 4: ".md"        # Research division - markdown  # Commented out
+    1: ".txt",
+    2: ".json",
+    3: ".md"
 }
 
 # Step Output Types
 STEP_OUTPUT_TYPES = {
     1: "text",
-    2: "json", 
-    # 3: "markdown",  # Commented out
-    # 4: "markdown"  # Commented out
+    2: "json",
+    3: "markdown"
 }
 
 # Logging Configuration
