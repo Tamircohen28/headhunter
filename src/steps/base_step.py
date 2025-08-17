@@ -4,7 +4,7 @@ Provides shared functionality and enforces a common interface.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 from pathlib import Path
 from enum import Enum
 
@@ -48,6 +48,7 @@ class BaseStep(ABC):
         self.config = config
         self.file_manager = file_manager
         self.status = StepStatus.PENDING
+        self._current_output_dir: Optional[str] = None
         
         # Get file extension and output type from step details
         self.file_extension = step_details.file_extension
@@ -73,6 +74,7 @@ class BaseStep(ABC):
         try:
             log("info", f"🚀 Step {self.step_number}: Starting {self.step_name}")
             self.status = StepStatus.RUNNING
+            self._current_output_dir = output_dir
             
             # Execute the step logic
             result = self._execute(**kwargs)
@@ -93,6 +95,13 @@ class BaseStep(ABC):
             error_msg = f"Step {self.step_number} ({self.step_name}) failed: {str(e)}"
             log("error", f"❌ {error_msg}")
             return {"error": error_msg}, False
+    
+    def _get_step_dir(self) -> str:
+        """Compute this step's directory path within the current run output dir."""
+        if not self._current_output_dir:
+            raise RuntimeError("Step output directory is not set")
+        step_dir_name = f"step_{self.step_number:02d}_{self.step_name.lower().replace(' ', '_')}"
+        return f"{self._current_output_dir}/{step_dir_name}"
     
     def _save_output(self, output_dir: str, result: Any) -> str:
         """
@@ -123,6 +132,11 @@ class BaseStep(ABC):
         
         log("debug", f"💾 Step {self.step_number} output saved to {file_path}")
         return file_path
+    
+    def _write_additional_file(self, filename: str, content: Any, file_type: str = "text") -> str:
+        """Helper for steps to save extra files (e.g., prompt.md, result.md) in the step directory."""
+        step_dir = self._get_step_dir()
+        return self.file_manager.save_file(step_dir, filename, content, file_type)
     
     @abstractmethod
     def _execute(self, **kwargs) -> Any:

@@ -114,29 +114,88 @@ class OpenAIClient(BaseLLMClient):
         
         return BaseAPIConfig(**base_config)
     
-    def start_deep_research(self, prompt: str, **kwargs) -> Tuple[str, bool]:
+    def start_deep_research(self, prompt_text: str) -> Tuple[str, bool]:
         """
-        Start a deep research session using OpenAI Responses API.
-        
-        Note: This is a placeholder for future implementation.
+        Start a deep research session using OpenAI Responses API in background mode.
+        Uses model from Config.deep_research_model (default: o4-mini-deep-research).
+        Returns (response_id, success).
         """
-        logger.warning("⚠️ Deep research not yet implemented - using regular completion")
-        return self.execute_prompt(prompt, **kwargs)
+        try:
+            model = self.app_config.deep_research_model
+            max_tokens = self.app_config.deep_research_max_tokens
+            tools = self.app_config.deep_research_tools
+            
+            logger.info(f"📡 Starting deep research (model: {model}) in background mode")
+            
+            response = self.client.responses.create(
+                model=model,
+                input=prompt_text,
+                max_output_tokens=max_tokens,
+                background=True,
+                modalities=["text"],
+                tools=tools
+            )
+            
+            response_id = response.id
+            logger.info(f"✅ Deep research started (id: {response_id})")
+            return response_id, True
+        except Exception as e:
+            logger.error(f"❌ Failed to start deep research: {e}")
+            return {"error": str(e)}, False
     
-    def poll_research_status(self, research_id: str) -> Tuple[Dict[str, Any], bool]:
+    def poll_research_status(self, response_id: str, poll_interval: int = 10) -> Tuple[Dict[str, Any], bool]:
         """
-        Poll the status of a deep research session.
-        
-        Note: This is a placeholder for future implementation.
+        Poll the status of a deep research session every poll_interval seconds.
+        Returns (final_response_obj, success) once terminal state reached.
         """
-        logger.warning("⚠️ Research polling not yet implemented")
-        return {"status": "not_implemented"}, False
+        try:
+            logger.info(f"🔎 Polling research status for id: {response_id}")
+            while True:
+                status_obj = self.client.responses.retrieve(response_id)
+                status = getattr(status_obj, 'status', None) or status_obj.get('status') if isinstance(status_obj, dict) else None
+                
+                if status in ["completed", "succeeded"]:
+                    logger.info("✅ Research completed")
+                    return status_obj, True
+                if status in ["failed", "errored", "cancelled", "expired"]:
+                    logger.error(f"❌ Research ended with status: {status}")
+                    return status_obj, False
+                
+                logger.info(f"⏳ Status: {status}. Polling again in {poll_interval}s...")
+                time.sleep(poll_interval)
+        except Exception as e:
+            logger.error(f"❌ Polling failed: {e}")
+            return {"error": str(e)}, False
     
-    def get_research_result(self, research_id: str) -> Tuple[Any, bool]:
+    def get_research_result_markdown(self, response_obj: Any) -> Tuple[str, bool]:
         """
-        Get the result of a completed deep research session.
-        
-        Note: This is a placeholder for future implementation.
+        Extract full text content from a completed deep research response.
+        Returns (markdown_text, success).
         """
-        logger.warning("⚠️ Research result retrieval not yet implemented")
-        return {"error": "not_implemented"}, False
+        try:
+            # The Responses API may return output_text; fallback to choices/content
+            # Handle both SDK objects and dicts
+            text = None
+            if hasattr(response_obj, 'output_text') and response_obj.output_text:
+                text = response_obj.output_text
+            elif isinstance(response_obj, dict) and response_obj.get('output_text'):
+                text = response_obj['output_text']
+            
+            if not text:
+                # Try messages or content
+                try:
+                    if hasattr(response_obj, 'output'):
+                        # Newer SDK may expose output as list of content parts
+                        parts = getattr(response_obj, 'output', None)
+                        if parts:
+                            text = "\n\n".join([getattr(p, 'content', '') or str(p) for p in parts])
+                except Exception:
+                    pass
+            
+            if not text:
+                # Fallback: stringify object
+                text = str(response_obj)
+            
+            return text, True
+        except Exception as e:
+            return f"Error extracting research result: {e}", False
