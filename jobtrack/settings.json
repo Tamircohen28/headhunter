@@ -1,0 +1,8 @@
+{
+  "jobtrack": {
+    "defaultStatus": "Saved",
+    "defaultCurrency": "USD",
+    "staleThresholdDays": 7,
+    "dataDir": "${CLAUDE_PLUGIN_ROOT}/data"
+  }
+}

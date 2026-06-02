@@ -1,0 +1,12 @@
+{
+  "name": "jobtrack",
+  "version": "1.0.0",
+  "description": "Job search CRM with pipeline, interviews, tasks, and Gmail/Calendar/Notion/Todoist integrations.",
+  "author": {
+    "name": "Your Name"
+  },
+  "homepage": "https://github.com/your-org/jobtrack-plugin",
+  "repository": "https://github.com/your-org/jobtrack-plugin",
+  "license": "MIT",
+  "keywords": ["jobs", "career", "pipeline", "interviews", "notion", "gmail"]
+}

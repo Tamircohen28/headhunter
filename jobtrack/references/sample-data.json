@@ -1,0 +1,91 @@
+{
+  "applications": [
+    {
+      "id": "app_001", "company": "Acme Corp", "role": "Senior Backend Engineer",
+      "job_url": "https://acme.com/jobs/123", "status": "Technical", "priority": "High",
+      "applied_date": "2026-05-20", "source": "LinkedIn", "salary_min": 150000,
+      "salary_max": 190000, "currency": "USD", "location": "San Francisco, CA",
+      "remote_type": "Hybrid", "created_date": "2026-05-18T10:00:00Z",
+      "updated_date": "2026-05-30T10:00:00Z"
+    },
+    {
+      "id": "app_002", "company": "Globex", "role": "Staff Engineer",
+      "job_url": "https://globex.io/careers/staff", "status": "Onsite", "priority": "High",
+      "applied_date": "2026-05-10", "source": "Referral", "salary_min": 200000,
+      "salary_max": 250000, "currency": "USD", "location": "Remote",
+      "remote_type": "Remote", "created_date": "2026-05-08T10:00:00Z",
+      "updated_date": "2026-06-01T10:00:00Z"
+    },
+    {
+      "id": "app_003", "company": "Initech", "role": "Platform Engineer",
+      "job_url": "https://initech.com/jobs/pe", "status": "Applied", "priority": "Medium",
+      "applied_date": "2026-05-15", "source": "Company Site", "currency": "USD",
+      "location": "Austin, TX", "remote_type": "On-site",
+      "created_date": "2026-05-15T10:00:00Z", "updated_date": "2026-05-15T10:00:00Z"
+    },
+    {
+      "id": "app_004", "company": "Umbrella", "role": "DevOps Lead",
+      "job_url": "https://umbrella.co/jobs/devops", "status": "Offer", "priority": "High",
+      "applied_date": "2026-04-25", "source": "LinkedIn", "salary_min": 180000,
+      "salary_max": 220000, "currency": "USD", "location": "Boston, MA",
+      "remote_type": "Hybrid", "created_date": "2026-04-24T10:00:00Z",
+      "updated_date": "2026-05-31T10:00:00Z"
+    },
+    {
+      "id": "app_005", "company": "Hooli", "role": "Frontend Engineer",
+      "job_url": "https://hooli.xyz/jobs/fe", "status": "Rejected", "priority": "Low",
+      "applied_date": "2026-04-30", "source": "LinkedIn", "currency": "USD",
+      "location": "Palo Alto, CA", "remote_type": "On-site",
+      "created_date": "2026-04-29T10:00:00Z", "updated_date": "2026-05-20T10:00:00Z"
+    }
+  ],
+  "interviews": [
+    {
+      "id": "int_001", "application_id": "app_001", "round_number": 1,
+      "round_type": "Phone Screen", "scheduled_at": "2026-05-25T15:00:00Z",
+      "duration_minutes": 45, "interviewer_name": "Jane Doe", "status": "Completed",
+      "outcome": "Passed", "difficulty_rating": 3, "vibe_rating": 4,
+      "what_went_well": "Strong rapport, clear communication on past projects.",
+      "what_went_poorly": "Stumbled on a distributed systems consistency question.",
+      "overall_feeling": "Good", "prep_checklist": []
+    },
+    {
+      "id": "int_002", "application_id": "app_001", "round_number": 2,
+      "round_type": "Technical", "scheduled_at": "2026-06-03T16:00:00Z",
+      "duration_minutes": 60, "interviewer_name": "Sam Lee", "status": "Scheduled",
+      "outcome": "Pending", "prep_checklist": [
+        {"id": "c1", "text": "Review system design fundamentals", "done": false},
+        {"id": "c2", "text": "Practice 2 medium LeetCode problems", "done": true}
+      ]
+    },
+    {
+      "id": "int_003", "application_id": "app_002", "round_number": 1,
+      "round_type": "Onsite", "scheduled_at": "2026-06-08T17:00:00Z",
+      "duration_minutes": 240, "interviewer_name": "Panel", "status": "Scheduled",
+      "outcome": "Pending", "prep_checklist": []
+    }
+  ],
+  "tasks": [
+    {"id": "task_001", "application_id": "app_001", "title": "Send thank-you note to Jane",
+     "due_date": "2026-05-26T00:00:00Z", "priority": "Medium", "completed": true},
+    {"id": "task_002", "application_id": "app_001", "title": "Prep system design for technical round",
+     "due_date": "2026-06-02T00:00:00Z", "priority": "High", "completed": false},
+    {"id": "task_003", "application_id": "app_004", "title": "Respond to offer / negotiate salary",
+     "due_date": "2026-05-30T00:00:00Z", "priority": "High", "completed": false},
+    {"id": "task_004", "title": "Update resume with latest project",
+     "due_date": "2026-06-05T00:00:00Z", "priority": "Low", "completed": false}
+  ],
+  "contacts": [
+    {"id": "con_001", "application_id": "app_001", "name": "Jane Doe",
+     "role_at_company": "Recruiter", "email": "jane@acme.com",
+     "linkedin_url": "https://linkedin.com/in/janedoe"},
+    {"id": "con_002", "application_id": "app_002", "name": "Mark Smith",
+     "role_at_company": "Hiring Manager", "email": "mark@globex.io"}
+  ],
+  "notes": [
+    {"id": "note_001", "application_id": "app_001", "content": "Team uses Go + Kubernetes. Emphasize infra experience.",
+     "note_type": "Research"},
+    {"id": "note_002", "application_id": "app_004", "content": "Offer: $200k base + 15% bonus. Need decision by Jun 10.",
+     "note_type": "Offer Details"}
+  ]
+}
