@@ -111,3 +111,16 @@ plus `created_date` and `updated_date` (ISO 8601). Any write MUST bump
 | interview_round_id | string | optional |
 | content | string | yes |
 | note_type | enum | General, Follow-Up, Offer Details, Rejection Reason, Research |
+
+## Event (auto-logged, powers the Timeline)
+
+Written automatically by `crud.js` on create/move/complete — not edited by hand.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| id | string | auto |
+| ts | datetime | when it happened |
+| type | string | application_created, status_change, interview_added, task_added, task_completed, note_added |
+| application_id | string | FK → JobApplication |
+| summary | string | human-readable line |
+| meta | object | type-specific (e.g. `{from, to}` for status_change) |

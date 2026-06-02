@@ -29,11 +29,16 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/export-applications.js --format csv --out ./j
 node ${CLAUDE_PLUGIN_ROOT}/scripts/export-applications.js --format json --out ./jobtrack.json
 ```
 
-## Notion (applications)
+## Notion (applications) — implemented
 
-Env: `NOTION_DATABASE_ID`, `NOTION_TOKEN`. Properties: Company (title), Role,
-Status, Priority, Location, Source, Job URL, Applied Date. PATCH if
-`notion_page_id` set, else POST; save `notion_page_id` back on the application.
+Env: `NOTION_DATABASE_ID`, `NOTION_TOKEN`. The DB needs properties: Company
+(title), Role, Status, Priority, Location, Source, Job URL, Applied Date.
+PATCH if `notion_page_id` set, else POST; saves `notion_page_id` back.
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/sync-notion.js --dry-run   # preview
+node ${CLAUDE_PLUGIN_ROOT}/scripts/sync-notion.js             # apply
+```
 
 ## Notion (tasks)
 
@@ -50,16 +55,23 @@ meet link + interviewer. Save `google_calendar_event_id`.
 
 Env: `GOOGLE_TASKS_LIST_ID` (default `@default`). Save `google_task_id`.
 
-## Todoist
+## Todoist — implemented
 
 Env: `TODOIST_API_TOKEN`. Content `[{company}] {title}`. Priority High→4,
-Medium→3, Low→2. Skip if `todoist_task_id` already set.
+Medium→3, Low→2. Skips tasks that already have `todoist_task_id`.
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/sync-todoist.js --dry-run   # preview
+node ${CLAUDE_PLUGIN_ROOT}/scripts/sync-todoist.js             # apply
+```
 
 ## Reminders
 
-- **Stale apps:** ACTIVE_STAGES apps not updated in 7+ days → email digest.
-- **WhatsApp (Twilio):** interviews in next 24h + overdue tasks. Env:
-  `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO`.
+- **WhatsApp (Twilio) — implemented:** interviews in next 24h + overdue tasks.
+  Env: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`,
+  `WHATSAPP_TO`. `node ${CLAUDE_PLUGIN_ROOT}/scripts/sync-twilio.js [--dry-run]`.
+- **Stale apps:** ACTIVE_STAGES apps not updated in 7+ days → use the
+  `stale-applications` agent to draft an email digest.
 
 ## Setup guidance
 

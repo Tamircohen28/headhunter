@@ -51,12 +51,27 @@ Use status emoji/labels from `references/status-config.md`
 
 ## Dashboard / analytics
 
-When asked for a dashboard or stats, compute from the data:
-total applications, active pipeline count, offers, response rate %
-(non-Saved that got any reply ÷ applied), interviews in next 14 days,
-avg response time (days), ghosted rate %, interview conversion %,
-top source, pipeline counts by stage, upcoming interviews (14-day),
-overdue tasks, and 5 most-recently-updated applications.
+Use the deterministic dashboard script rather than computing by hand:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/dashboard.js          # formatted
+node ${CLAUDE_PLUGIN_ROOT}/scripts/dashboard.js --json    # raw metrics
+```
+
+It returns total, active, offers, response rate %, avg response time, ghosted
+rate %, interview conversion %, top source, pipeline counts, upcoming
+interviews (14d), overdue tasks, and recent applications.
+
+## Other views
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/calendar.js            # interview agenda
+node ${CLAUDE_PLUGIN_ROOT}/scripts/timeline.js <appId>    # per-application timeline
+node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js events <appId> # raw event log
+```
+
+Status changes, additions, and completions are auto-logged to `events.json`,
+which powers the timeline (Application-detail Timeline tab parity).
 
 ## First run
 

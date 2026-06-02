@@ -11,11 +11,16 @@ servers, and small Node scripts.
 ## Install
 
 ```bash
-# local path
+# add this repo as a marketplace, then install
+/plugin marketplace add ./jobtrack      # (uses .claude-plugin/marketplace.json)
+/plugin install jobtrack@jobtrack-marketplace
+
+# or install directly from a local path
 /plugin install ./jobtrack
 ```
 
-Requires Node.js (for the bundled scripts). No npm dependencies.
+Skills also auto-load if placed under a `.claude/skills` directory. Requires
+Node.js ≥ 18 (uses native `fetch`); no npm dependencies.
 
 ## First run
 
@@ -54,12 +59,10 @@ OpenAI** — Claude Code subagents do the work:
 Run it with `/jobtrack:research <url-or-app>`. See `references/pipeline.md`.
 
 ### Slash commands
-- `/jobtrack:add-application`
-- `/jobtrack:pipeline`
-- `/jobtrack:log-interview`
-- `/jobtrack:add-task`
-- `/jobtrack:export-data`
-- `/jobtrack:research`
+- `/jobtrack:add-application` · `/jobtrack:pipeline` · `/jobtrack:dashboard`
+- `/jobtrack:calendar` · `/jobtrack:tasks` · `/jobtrack:contacts`
+- `/jobtrack:log-interview` · `/jobtrack:add-task` · `/jobtrack:export-data`
+- `/jobtrack:research` · `/jobtrack:sync`
 
 ### Subagents
 - `job-analyzer` — scrape + web-research a posting into JobMetadata.
@@ -102,13 +105,24 @@ See `references/data-model.md` and `references/status-config.md`.
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/crud.js` | list/add/update/move/complete-task/seed |
+| `scripts/crud.js` | list/get/add/update/delete/move/complete-task/events/seed (+ enum validation, event logging) |
+| `scripts/enums.js` | canonical enums + pipeline ordering (validation source of truth) |
+| `scripts/dashboard.js` | computed analytics (formatted or `--json`) |
+| `scripts/calendar.js` | interview agenda (`--month YYYY-MM`) |
+| `scripts/timeline.js` | per-application chronological timeline |
 | `scripts/csv-import.js` | CSV → applications (alias mapping) |
 | `scripts/parse-csv-import.sh` | wrapper for csv-import |
 | `scripts/export-applications.js` | export CSV or JSON |
 | `scripts/detect-gmail-status.js` | classify email → status |
-| `scripts/session-briefing.js` | SessionStart summary |
+| `scripts/sync-notion.js` | applications → Notion (idempotent, `--dry-run`) |
+| `scripts/sync-todoist.js` | tasks → Todoist (idempotent, `--dry-run`) |
+| `scripts/sync-twilio.js` | WhatsApp reminder digest (`--dry-run`) |
+| `scripts/session-briefing.js` | SessionStart structured briefing |
 | `scripts/validate-data.js` | PostToolUse data validation |
+| `scripts/test.sh` | self-test (17 checks across all features) |
+
+Run `bash scripts/test.sh` to verify the install — it exercises every
+acceptance criterion against a throwaway data dir.
 
 ## Environment variables
 
