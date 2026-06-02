@@ -40,6 +40,8 @@ plus `created_date` and `updated_date` (ISO 8601). Any write MUST bump
 | requirements | string | | Markdown OK |
 | color_label | string | | Hex for Kanban accent |
 | notion_page_id | string | | Set after Notion sync |
+| research_dir | string | | Path to interview-research output (set by the pipeline) |
+| last_research_at | datetime | | When the interview-research pipeline last ran |
 | created_date | datetime | auto | |
 | updated_date | datetime | auto | bump on every write |
 

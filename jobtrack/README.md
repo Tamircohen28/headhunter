@@ -30,10 +30,28 @@ Or just start adding: `/jobtrack:add-application`.
 ### Skills (auto-discovered)
 - **jobtrack-core** — read/add/update applications, interviews, tasks, contacts, notes; analytics & dashboard.
 - **pipeline** — Kanban board + forward-only stage moves.
-- **interview-prep** — upcoming interviews, prep checklists, prep briefs, mock questions.
+- **interview-research** — the job4u pipeline, ported to native subagents: scrape → analyze + web-research → divide topics across parallel research agents → merge into a study guide, attached to an application.
+- **interview-prep** — upcoming interviews, prep checklists, prep briefs, mock questions (consumes research output).
 - **gmail-status-scan** — detect status changes from email (with approval gate).
 - **integrations** — Notion / Calendar / Google Tasks / Todoist / CSV / reminders.
 - **scaffold-base44-app** — developer mode: regenerate the React web app + entities + Deno functions.
+
+### The job4u research pipeline (native port)
+
+The original `job4u` Python project scraped a job, analyzed it with OpenAI, then
+divided study topics across multiple research agents and merged the results.
+The **`interview-research`** skill reproduces this with **zero Python and no
+OpenAI** — Claude Code subagents do the work:
+
+| job4u (Python) | This plugin (native) |
+|----------------|----------------------|
+| Playwright scraper | `WebFetch` (or paste) |
+| gpt-4o-mini browsing analysis | `job-analyzer` subagent + `WebSearch` |
+| `TaskExecutor` topic division + deep-research | parallel `topic-researcher` subagents |
+| consolidation | `study-guide-writer` subagent |
+| `output_*/run_*/` files | `data/research/<appId>/` linked to the application |
+
+Run it with `/jobtrack:research <url-or-app>`. See `references/pipeline.md`.
 
 ### Slash commands
 - `/jobtrack:add-application`
@@ -41,8 +59,12 @@ Or just start adding: `/jobtrack:add-application`.
 - `/jobtrack:log-interview`
 - `/jobtrack:add-task`
 - `/jobtrack:export-data`
+- `/jobtrack:research`
 
 ### Subagents
+- `job-analyzer` — scrape + web-research a posting into JobMetadata.
+- `topic-researcher` — deep-research a batch of topics (spawned in parallel).
+- `study-guide-writer` — merge research into a study guide + plan.
 - `interview-analyst` — performance analysis + next-round predictor.
 - `stale-applications` — finds 7+ day stale apps, drafts follow-ups.
 

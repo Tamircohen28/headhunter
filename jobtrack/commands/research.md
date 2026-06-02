@@ -1,0 +1,19 @@
+---
+description: Run the interview-prep research pipeline for a job (scrape, analyze, multi-agent research, study guide).
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
+---
+
+# Research a Job
+
+Run the `interview-research` pipeline for the job in `$ARGUMENTS` (a job URL, a
+pasted description, or the name of an existing application).
+
+Follow the `interview-research` skill end-to-end:
+1. Resolve/create the target application.
+2. Scrape → 3. job-analyzer subagent (metadata + web research) →
+4. fan out topic-researcher subagents in parallel over topic batches →
+5. study-guide-writer merges into a study guide.
+
+Persist everything under `data/research/<appId>/` and link `research_dir` +
+`last_research_at` onto the application. Finish by showing the study-guide path
+and offering to add prep tasks or log the interview.

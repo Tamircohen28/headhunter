@@ -36,6 +36,15 @@ When asked to prep for an interview, generate:
 - **Round-specific focus** based on `round_type` (e.g. Technical → DS&A +
   system design; Behavioral → leadership/conflict stories).
 
+## Deep research (job4u pipeline)
+
+For a thorough study plan, hand off to the **interview-research** skill
+(`/jobtrack:research`), which scrapes the posting, web-researches the company,
+fans research across parallel subagents, and writes a study guide to the
+application's `research_dir`. If `research_dir` is already set on the app, read
+`04_study_guide.md` there and fold it into the prep brief instead of
+re-researching.
+
 ## Link to Insights
 
 If the application has ≥1 completed interview round (`status: Completed`),
