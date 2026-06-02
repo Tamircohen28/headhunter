@@ -70,7 +70,25 @@ Run it with `/jobtrack:research <url-or-app>`. See `references/pipeline.md`.
 
 ### Hooks
 - **SessionStart** — pipeline + next-48h interviews + overdue tasks briefing.
-- **PostToolUse(Write)** — validates `data/*.json` schema.
+  Emits structured output (`hookSpecificOutput.additionalContext` +
+  `sessionTitle`, e.g. `JobTrack · 5 apps · 4 active · 2 overdue`).
+- **PostToolUse(Write)** — validates `data/*.json` schema (`continueOnBlock`).
+
+Both hooks use the exec **`args`** form (no shell quoting of
+`${CLAUDE_PLUGIN_ROOT}` paths).
+
+## Latest Claude Code features used
+
+This plugin targets current Claude Code (v2.1.15x):
+
+- **Auto-loading skills** — drop-in under `.claude/skills`, no marketplace needed.
+- **Hook exec `args` form** + `continueOnBlock` (v2.1.139).
+- **Structured `SessionStart` output** — `additionalContext`, `sessionTitle`,
+  `reloadSkills` (v2.1.152).
+- **SKILL `effort`** — `interview-research` runs at `effort: high` (v2.1.157).
+- **Dynamic workflows** — the research fan-out runs as managed background
+  agents via `ultracode` / `/effort xhigh`, tracked with `/workflows` (v2.1.154).
+- **`/reload-skills`** to pick up edits mid-session during development.
 
 ## Data backends (in preference order)
 

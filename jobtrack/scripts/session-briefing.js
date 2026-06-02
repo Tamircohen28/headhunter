@@ -1,12 +1,30 @@
 #!/usr/bin/env node
 // SessionStart briefing: counts by stage, interviews in next 48h, overdue tasks.
-// Prints a short summary (<15 lines). Safe no-op if there's no data.
+// Emits structured SessionStart JSON (additionalContext + sessionTitle) per the
+// v2.1.152 hook output contract. Safe no-op if there's no data.
 const { load } = require("./lib");
+
+function emit({ context, title }) {
+  process.stdout.write(
+    JSON.stringify({
+      reloadSkills: false,
+      hookSpecificOutput: {
+        hookEventName: "SessionStart",
+        additionalContext: context,
+        ...(title ? { sessionTitle: title } : {}),
+      },
+    })
+  );
+}
 
 try {
   const apps = load("applications");
   if (!apps.length) {
-    console.log("JobTrack: no applications yet. Run `crud.js seed` for demo data or `/jobtrack:add-application`.");
+    emit({
+      context:
+        "JobTrack: no applications yet. Run `crud.js seed` for demo data, " +
+        "`/jobtrack:add-application` to add one, or `/jobtrack:research <url>` to research a posting.",
+    });
     process.exit(0);
   }
 
@@ -23,26 +41,31 @@ try {
       new Date(i.scheduled_at).getTime() <= in48h
   );
   const appById = Object.fromEntries(apps.map((a) => [a.id, a]));
-
   const overdue = load("tasks").filter(
     (t) => !t.completed && t.due_date && new Date(t.due_date).getTime() < now
   );
 
-  console.log("=== JobTrack briefing ===");
-  console.log(`Pipeline: ${stageLine || "(none active)"}`);
-  console.log(`Total applications: ${apps.length}`);
+  const lines = ["=== JobTrack briefing ==="];
+  lines.push(`Pipeline: ${stageLine || "(none active)"}`);
+  lines.push(`Total applications: ${apps.length}`);
   if (interviews.length) {
-    console.log(`Interviews in next 48h: ${interviews.length}`);
+    lines.push(`Interviews in next 48h: ${interviews.length}`);
     for (const i of interviews) {
       const a = appById[i.application_id];
-      console.log(`  • ${i.round_type} @ ${a ? a.company : "?"} — ${i.scheduled_at}`);
+      lines.push(`  • ${i.round_type} @ ${a ? a.company : "?"} — ${i.scheduled_at}`);
     }
   } else {
-    console.log("Interviews in next 48h: none");
+    lines.push("Interviews in next 48h: none");
   }
-  console.log(`Overdue tasks: ${overdue.length}`);
-  for (const t of overdue.slice(0, 5)) console.log(`  • ${t.title} (due ${t.due_date})`);
+  lines.push(`Overdue tasks: ${overdue.length}`);
+  for (const t of overdue.slice(0, 5)) lines.push(`  • ${t.title} (due ${t.due_date})`);
+
+  const active = apps.filter((a) => PIPELINE.indexOf(a.status) > 0 && PIPELINE.indexOf(a.status) < 6).length;
+  emit({
+    context: lines.join("\n"),
+    title: `JobTrack · ${apps.length} apps · ${active} active${overdue.length ? ` · ${overdue.length} overdue` : ""}`,
+  });
 } catch (e) {
   // Never block session start on a briefing error.
-  console.log(`JobTrack briefing unavailable: ${e.message}`);
+  emit({ context: `JobTrack briefing unavailable: ${e.message}` });
 }

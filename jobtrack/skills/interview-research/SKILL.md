@@ -2,6 +2,7 @@
 name: interview-research
 description: Run the job4u interview-prep research pipeline natively — scrape a job posting, analyze + web-research it, divide topics across parallel research subagents, and merge into a study guide attached to a job application. Triggers on research this job, prep pipeline, study guide, deep research interview, analyze job posting, job4u pipeline.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
+effort: high
 ---
 
 # Interview-Research Pipeline
@@ -55,6 +56,12 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js update applications <appId> '{"compan
 
 This is the core of the pipeline — fan-out research, exactly like the original
 multi-agent step, but using native subagents.
+
+> **Scaling tip (dynamic workflows):** for postings with many topics, this
+> fan-out is a natural fit for the workflow system. The user can launch it as a
+> dynamic workflow with the `ultracode` keyword (or `/effort xhigh` on Opus 4.8)
+> so the topic-researcher agents run as managed background agents; track them
+> with `/workflows`. The orchestration below is identical either way.
 
 ## Stage 4 — Merge (subagent: study-guide-writer)
 

@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/session-briefing.js"
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/session-briefing.js"]
           }
         ]
       }
@@ -17,7 +18,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/validate-data.js"
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/validate-data.js"],
+            "continueOnBlock": true
           }
         ]
       }
