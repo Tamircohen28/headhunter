@@ -1,0 +1,16 @@
+{
+  "headhunter": {
+    "defaultStatus": "Saved",
+    "defaultCurrency": "USD",
+    "staleThresholdDays": 7,
+    "dataDir": "${CLAUDE_PLUGIN_ROOT}/data",
+    "research": {
+      "studyWeeks": 4,
+      "hoursPerWeek": 10,
+      "maxTopicsPerAgent": 4,
+      "minTopics": 15,
+      "maxTopics": 25,
+      "outputDir": "${CLAUDE_PLUGIN_ROOT}/data/research"
+    }
+  }
+}

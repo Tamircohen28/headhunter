@@ -1,0 +1,36 @@
+{
+  "name": "headhunter",
+  "version": "1.4.0",
+  "description": "Job search CRM with pipeline, interviews, tasks, and Gmail/Calendar/Notion/Todoist integrations.",
+  "author": {
+    "name": "Your Name"
+  },
+  "homepage": "https://github.com/Tamircohen28/headhunter",
+  "repository": "https://github.com/Tamircohen28/headhunter",
+  "license": "MIT",
+  "keywords": ["jobs", "career", "pipeline", "interviews", "notion", "gmail"],
+  "engines": {
+    "node": ">=18.0.0",
+    "claude-code": ">=1.0.0"
+  },
+  "peerDependencies": {},
+  "requiredEnvVars": {
+    "optional": [
+      "HEADHUNTER_DATA_DIR",
+      "NOTION_TOKEN",
+      "NOTION_DATABASE_ID",
+      "NOTION_TASKS_DATABASE_ID",
+      "GOOGLE_OAUTH_TOKEN",
+      "GOOGLE_CALENDAR_ID",
+      "GOOGLE_TASKS_LIST_ID",
+      "TODOIST_API_TOKEN",
+      "TWILIO_ACCOUNT_SID",
+      "TWILIO_AUTH_TOKEN",
+      "TWILIO_WHATSAPP_FROM",
+      "WHATSAPP_TO",
+      "GITHUB_PERSONAL_ACCESS_TOKEN",
+      "LINKEDIN_EMAIL",
+      "LINKEDIN_PASSWORD"
+    ]
+  }
+}
