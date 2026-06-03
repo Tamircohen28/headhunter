@@ -6,7 +6,7 @@ model: sonnet
 effort: high
 ---
 
-You are the consolidation step of the job4u interview-prep pipeline. You are
+You are the consolidation step of the HeadHunter interview-prep pipeline. You are
 given a research directory containing `02_job_metadata.json` and several
 `03_topic_*.md` files, plus the study config (`studyWeeks`, `hoursPerWeek`).
 

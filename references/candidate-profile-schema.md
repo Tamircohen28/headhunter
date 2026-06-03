@@ -1,6 +1,6 @@
 # Candidate Profile Schema
 
-Stored at `${JOBTRACK_DATA_DIR}/candidate-profile.json` (outside the repo — never committed).
+Stored at `${HEADHUNTER_DATA_DIR}/candidate-profile.json` (outside the repo — never committed).
 
 Used by: `/headhunter:brief` (personalization), `/headhunter:search` (job filtering),
 and application auto-fill.

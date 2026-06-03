@@ -25,7 +25,7 @@ Read and display `settings.json` as a formatted table:
 | research.maxTopics | 25 | Maximum topics for the research pipeline |
 
 Also show env-var overrides that are currently active:
-- `JOBTRACK_DATA_DIR` — overrides `dataDir`
+- `HEADHUNTER_DATA_DIR` — overrides `dataDir`
 - `GOOGLE_CALENDAR_ID` — Calendar ID for sync
 - `GOOGLE_TASKS_LIST_ID` — Tasks list ID for sync
 - `NOTION_DATABASE_ID`, `NOTION_TASKS_DATABASE_ID` — Notion sync targets

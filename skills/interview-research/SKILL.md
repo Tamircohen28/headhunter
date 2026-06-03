@@ -1,6 +1,6 @@
 ---
 name: interview-research
-description: Run the job4u interview-prep research pipeline natively — scrape a job posting, analyze + web-research it, divide topics across parallel research subagents, and merge into a study guide attached to a job application. Triggers on research this job, prep pipeline, study guide, deep research interview, analyze job posting, job4u pipeline.
+description: Run the HeadHunter interview-prep research pipeline natively — scrape a job posting, analyze + web-research it, divide topics across parallel research subagents, and merge into a study guide attached to a job application. Triggers on research this job, prep pipeline, study guide, deep research interview, analyze job posting, headhunter research.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 effort: high
 context: fork
@@ -8,7 +8,7 @@ context: fork
 
 # Interview-Research Pipeline
 
-This is the native Claude Code port of the job4u Python pipeline — no Python,
+This is the HeadHunter interview-prep pipeline — no Python,
 no OpenAI. You orchestrate it by spawning subagents (the "divide topics among
 agents" pattern the Python `TaskExecutor` used) and persist results into the
 headhunter store. Read `references/pipeline.md` for the full stage map and the

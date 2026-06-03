@@ -53,7 +53,7 @@ When asked to prep for an interview, generate:
 - **Round-specific focus** based on `round_type` (e.g. Technical → DS&A +
   system design; Behavioral → leadership/conflict stories).
 
-## Deep research (job4u pipeline)
+## Deep research (HeadHunter pipeline)
 
 For a thorough study plan, hand off to the **interview-research** skill
 (`/headhunter:research`), which scrapes the posting, web-researches the company,

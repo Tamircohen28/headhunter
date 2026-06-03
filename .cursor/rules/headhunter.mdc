@@ -1,0 +1,120 @@
+---
+description: HeadHunter job-search co-pilot — job tracking, interview prep, CV tailoring, salary negotiation, job discovery. Load when user asks about jobs, applications, interviews, CV, salary, or career.
+alwaysApply: false
+---
+
+# HeadHunter — Job Search Co-pilot
+
+You are operating in the HeadHunter job-search plugin repo. All data lives in `data/*.json`. All operations go through the Node scripts in `scripts/`. **Never edit `data/*.json` by hand** — use `crud.js`.
+
+## Data operations
+
+```bash
+node scripts/crud.js list applications          # show all applications
+node scripts/crud.js list interviews            # show all interviews
+node scripts/crud.js list tasks                 # show all tasks
+node scripts/crud.js add applications '{"company":"Acme","role":"SWE","status":"Applied","priority":"High"}'
+node scripts/crud.js update applications <id> '{"status":"Technical"}'
+node scripts/crud.js move <appId> "Technical"  # forward-only pipeline move
+node scripts/crud.js complete-task <taskId>
+node scripts/crud.js seed                       # load 5 demo applications (first run)
+```
+
+Entities: `applications`, `interviews`, `tasks`, `contacts`, `notes`.
+
+## Pipeline stages (forward-only)
+`Saved → Applied → Phone Screen → Technical → Onsite → Offer → Accepted`
+Terminal (from any stage): `Rejected`, `Declined`, `Ghosted`
+
+## Views and analytics
+
+```bash
+node scripts/dashboard.js           # metrics table
+node scripts/dashboard.js --json    # raw JSON metrics
+node scripts/analytics.js           # funnel with conversion rates
+node scripts/calendar.js            # interview agenda
+node scripts/timeline.js <appId>    # per-application timeline
+node scripts/session-briefing.js    # pipeline + overdue + stale briefing
+```
+
+## Candidate profile
+
+```bash
+node scripts/candidate-profile.js show
+node scripts/candidate-profile.js set '{"personal":{"name":"..."},"salary":{"target_base_ils":50000}}'
+node scripts/candidate-profile.js extract-cv <file.txt>
+```
+
+## Job scanning and scoring
+
+```bash
+node scripts/score-job.js <job-metadata.json>   # deterministic pre-score vs candidate profile
+```
+
+Scoring fields: `match_score` (0–100, skills/exp/location/salary), `success_score` (0–100, qualification fit + company selectivity + competition).
+
+## CV and applications
+
+```bash
+node scripts/generate-cv-html.js --input <cv.md> --out <cv.html>   # A4 HTML → open in browser → Cmd+P → PDF
+```
+
+## Follow-ups and reminders
+
+```bash
+node scripts/draft-followups.js                 # detect stale/silence/offer-deadline scenarios
+node scripts/send-stale-reminders.js --dry-run  # preview stale-app digest
+```
+
+## Integrations (always use --dry-run first)
+
+```bash
+node scripts/sync-notion.js --dry-run           # preview Notion sync
+node scripts/sync-todoist.js --dry-run          # preview Todoist sync
+node scripts/sync-google-calendar.js --dry-run  # preview Calendar sync
+node scripts/sync-google-tasks.js --dry-run     # preview Google Tasks sync
+node scripts/sync-twilio.js --dry-run           # preview WhatsApp digest
+```
+
+## Backup
+
+```bash
+node scripts/backup.js                          # timestamped JSON snapshot → data/backups/
+node scripts/restore.js <backup.json> --confirm # restore from snapshot
+```
+
+## Import/Export
+
+```bash
+node scripts/csv-import.js <file.csv>           # dry-run (print parsed rows)
+node scripts/csv-import.js <file.csv> --write   # import into applications.json
+node scripts/csv-import.js --url <url> --write  # import from remote CSV URL
+node scripts/export-applications.js --format csv --out ./export.csv
+node scripts/export-applications.js --format json --out ./export.json
+```
+
+## Settings
+
+Edit `settings.json` to change defaults. Key: `headhunter`.
+
+```json
+{
+  "headhunter": {
+    "defaultCurrency": "USD",
+    "staleThresholdDays": 7,
+    "research": { "studyWeeks": 4, "hoursPerWeek": 10 }
+  }
+}
+```
+
+## Key data model fields (JobApplication)
+
+`id`, `company`, `role`, `status`, `priority`, `applied_date`, `source`, `location`, `remote_type`, `salary_min`, `salary_max`, `currency`, `job_url`, `match_score`, `success_score`, `scanner_notes`, `research_dir`, `research_status`, `tailored_cv_path`, `cover_letter_path`, `referral_contact_id`
+
+Full schema: `references/data-model.md`
+
+## Testing
+
+```bash
+bash scripts/test.sh    # 17 self-tests — run after any change to verify nothing broke
+```

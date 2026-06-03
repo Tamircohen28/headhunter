@@ -1,6 +1,6 @@
-# Interview-Research Pipeline (native Claude Code port of job4u)
+# Interview-Research Pipeline
 
-This replicates the original `job4u` Python pipeline using Claude Code
+This is the HeadHunter interview-prep pipeline, implemented using Claude Code
 subagents instead of Python + the OpenAI API. There is **no Python and no
 OpenAI dependency** — orchestration is done by the `interview-research` skill
 spawning subagents in parallel (the same "divide topics among agents" pattern
