@@ -42,6 +42,12 @@ plus `created_date` and `updated_date` (ISO 8601). Any write MUST bump
 | notion_page_id | string | | Set after Notion sync |
 | research_dir | string | | Path to interview-research output (set by the pipeline) |
 | last_research_at | datetime | | When the interview-research pipeline last ran |
+| match_score | number | | 0–100, set by `/jobtrack:scan` |
+| success_score | number | | 0–100, set by `/jobtrack:scan` |
+| scanner_notes | string | | Verdict + key gaps from scanner |
+| tailored_cv_path | string | | Path to HTML tailored CV (set by `/jobtrack:apply`) |
+| cover_letter_path | string | | Path to cover letter markdown |
+| referral_contact_id | string | | FK → Contact who referred this application |
 | created_date | datetime | auto | |
 | updated_date | datetime | auto | bump on every write |
 

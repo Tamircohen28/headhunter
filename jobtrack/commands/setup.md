@@ -36,6 +36,51 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/candidate-profile.js set \
   '{"personal":{"name":"...","email":"...","phone":"...","linkedin_url":"...","location":"..."}}'
 ```
 
+## Step 1b — GitHub import (optional, if `GITHUB_PERSONAL_ACCESS_TOKEN` is set)
+
+If the GitHub MCP is connected, offer to auto-import:
+
+```
+"I can pull your GitHub profile to pre-fill your skills and open source projects. Want me to do that?"
+```
+
+If yes, use the GitHub MCP to fetch:
+- User bio → `personal.github_url`
+- Pinned/top repos → `experience.open_source_projects` (name + URL)
+- Primary languages across repos → append unique ones to `experience.key_skills`
+- Public repo count
+
+Save via:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/candidate-profile.js set \
+  '{"personal":{"github_url":"https://github.com/..."},"experience":{"open_source_projects":[{"name":"...","url":"..."}],"key_skills":["..."]},"github_imported_at":"<ISO now>"}'
+```
+
+Tell the user what was imported and ask them to confirm or edit.
+
+## Step 1c — LinkedIn import (optional, if LinkedIn MCP is connected)
+
+If the LinkedIn MCP is connected, offer to import work history:
+
+```
+"I can pull your LinkedIn work history to pre-fill your experience. Want me to do that?"
+```
+
+If yes, fetch the candidate's own profile and extract:
+- Current title → `experience.current_title`
+- Current company → `experience.current_company`
+- Total years (infer from first job date) → `experience.years_total`
+- Summary/About section → `experience.summary`
+
+Save and confirm with the user.
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/candidate-profile.js set \
+  '{"experience":{"current_title":"...","current_company":"...","years_total":7},"linkedin_imported_at":"<ISO now>"}'
+```
+
+If LinkedIn MCP is not connected, skip silently (don't prompt).
+
 ## Step 2 — CV / Resume
 
 Ask: "Do you have a CV file to load, or would you prefer to paste your experience?"
@@ -91,6 +136,19 @@ Ask each:
 - **Deal breakers** — instant disqualifiers
 - **Why you're looking now** — honest 1–2 sentences (used in interview answers)
 - **3-year career goal** — where you want to be (used to filter senior/IC/management roles)
+- **Priority weights** (1–10 each) — used by the scanner to weight match score dimensions:
+  - Compensation (comp)
+  - Career growth (growth)
+  - Work-life balance (wlb)
+  - Tech stack quality (tech)
+  - Mission/impact (mission)
+
+  Example: "comp:8, growth:7, wlb:5, tech:9, mission:4" → scanner weights skills + salary heavily
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/candidate-profile.js set \
+  '{"preferences":{"priority_weights":{"comp":8,"growth":7,"wlb":5,"tech":9,"mission":4}}}'
+```
 
 ```bash
 node ${CLAUDE_PLUGIN_ROOT}/scripts/candidate-profile.js set \

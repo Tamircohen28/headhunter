@@ -15,10 +15,18 @@ const BLANK = {
   personal: { name: "", email: "", phone: "", linkedin_url: "", github_url: "", portfolio_url: "", location: "", timezone: "Asia/Jerusalem" },
   cv: { file_path: "", text: "", last_updated: "" },
   experience: { years_total: null, current_title: "", current_company: "", years_at_current: null, summary: "", key_skills: [], specializations: [], open_source_projects: [], certifications: [], education: "" },
-  preferences: { target_roles: [], target_companies: [], exclude_companies: [], industries: [], locations: [], remote_type: "", company_stage: [], company_size: "", must_haves: [], deal_breakers: [], why_looking: "", career_goal_3yr: "" },
+  preferences: {
+    target_roles: [], target_companies: [], exclude_companies: [], industries: [],
+    locations: [], remote_type: "", company_stage: [], company_size: "",
+    must_haves: [], deal_breakers: [], why_looking: "", career_goal_3yr: "",
+    priority_weights: { comp: 5, growth: 5, wlb: 5, tech: 5, mission: 5 },
+  },
   salary: { current_base_ils: null, current_total_ils: null, target_base_ils: null, target_total_ils: null, floor_ils: null, notes: "" },
   availability: { available_from: "", notice_period_days: null, actively_looking: true },
   application_defaults: { cover_letter_template: "", languages: [], visa_status: "Citizen", work_authorization: "IL" },
+  past_interview_patterns: [],
+  github_imported_at: null,
+  linkedin_imported_at: null,
 };
 
 function load() {

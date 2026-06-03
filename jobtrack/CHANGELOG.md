@@ -5,6 +5,34 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.3.0] — 2026-06-03
+
+### Added
+
+- **`/jobtrack:scan` command + `job-scanner` skill** — Brutally honest Match Score (0–100) and Success Score (0–100) for any job posting. Deterministic pre-scoring via `score-job.js`, then `job-scorer` agent refines with company selectivity research (Glassdoor, Blind). Verdict: Strong Candidate / Apply / Long Shot / Skip. Saves scores + notes to the application record.
+- **`/jobtrack:apply` command + `application-assistant` skill** — Generates a tailored CV and cover letter in parallel (cv-tailor + cover-letter-writer agents). CV output is A4-optimized HTML via `generate-cv-html.js` (browser print-to-PDF, zero deps). Also handles application form Q&A in Mode B.
+- **`/jobtrack:cv-review` command + `cv-optimizer` skill** — ATS score, missing keyword analysis, top 5 bullet improvements, LinkedIn headline/summary/skills audit. Runs cv-reviewer + linkedin-auditor agents in parallel.
+- **`/jobtrack:mock` command + `mock-interview` skill** — Interactive mock interview sessions. Pre-assessment (4 questions), then spawns mock-interviewer agent that asks round-appropriate questions, evaluates answers with per-question scores, gives feedback, and produces a Ready/More prep/Not ready verdict.
+- **`/jobtrack:analytics` command** — Pipeline funnel with conversion rates at each stage, offer rate, ghost rate, top-performing sources, scanner score averages.
+- **`score-job.js`** — Deterministic pre-scorer: skill keyword overlap, experience level check, remote/location match, salary range check. Feeds the job-scorer agent.
+- **`generate-cv-html.js`** — Markdown → A4 HTML converter. Zero external deps, inline CSS, print-safe. Open in browser → Cmd+P → PDF.
+- **`analytics.js`** — Full pipeline funnel analytics with bar charts, conversion rates, source breakdown.
+- **`agents/job-scorer.md`** — WebSearch-based success scorer; classifies company selectivity into Tiers 1–4.
+- **`agents/cv-tailor.md`** — Rewrites CV for a specific role (reframes, reorders, keyword-aligns). Never invents facts.
+- **`agents/cover-letter-writer.md`** — 3-paragraph cover letter: hook + fit + ask. No clichés; names real company facts.
+- **`agents/cv-reviewer.md`** — ATS scoring, keyword gap analysis, bullet quantification, format and structure audit.
+- **`agents/linkedin-auditor.md`** — LinkedIn profile completeness score, headline formula, keyword optimization, experience vs CV consistency.
+- **`agents/mock-interviewer.md`** — Full interactive interviewer persona: Technical/Behavioral/System Design/Recruiter/Final modes. STAR scoring for behavioral, correctness+complexity for technical.
+
+### Changed
+
+- **`skills/interview-prep`** — Added pre-assessment section (4 questions before any prep brief) to weight weak areas more heavily. Added mock interview link at the end.
+- **`scripts/candidate-profile.js`** — Added `preferences.priority_weights` (comp/growth/wlb/tech/mission, 1–10), `past_interview_patterns`, `github_imported_at`, `linkedin_imported_at` to profile schema.
+- **`commands/setup.md`** — Added Step 1b (GitHub auto-import via MCP) and Step 1c (LinkedIn auto-import via MCP), and priority weights collection in Step 4.
+- **`references/data-model.md`** — Added `match_score`, `success_score`, `scanner_notes`, `tailored_cv_path`, `cover_letter_path`, `referral_contact_id` to JobApplication.
+
+---
+
 ## [1.2.0] — 2026-06-03
 
 ### Added

@@ -27,6 +27,22 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js update interviews int_002 \
 
 Read the existing checklist first, modify the array, then write it back whole.
 
+## Pre-assessment (ask first — 4 questions, one message)
+
+Before generating any prep brief, ask the user:
+
+1. **Which topics feel strongest?** (e.g. "system design, Go concurrency, behavioral storytelling")
+2. **Which feel weakest or most uncertain?** (e.g. "dynamic programming, salary negotiation, conflict stories")
+3. **What do you most want to focus on?** (drilling weak spots / confirming strong areas / full simulation)
+4. **Round type?** — Recruiter / Technical / System Design / Behavioral / Onsite / Final
+
+Use the answers to weight the prep brief:
+- Weak area mentioned → make it the **first and most detailed** section, with extra depth
+- Strong area mentioned → include it briefly, skip basics
+- "Full simulation" → hand off to `/jobtrack:mock` instead
+
+If the user is in a hurry ("just give me the brief"), skip the pre-assessment and use defaults (cover all areas, medium depth).
+
 ## Prep brief
 
 When asked to prep for an interview, generate:
@@ -69,3 +85,8 @@ offer to run `/jobtrack:research` to generate it.
 If the application has ≥1 completed interview round (`status: Completed`),
 recommend running the `interview-analyst` agent / Insights analysis to fold in
 past performance (strengths, weaknesses, predicted next-round topics).
+
+## Link to Mock Interview
+
+After generating the prep brief, always offer:
+> "Ready to practice? Run `/jobtrack:mock <company>` for a live mock session — the interviewer will ask you questions based on this prep brief and give real-time feedback."
