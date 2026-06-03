@@ -1,7 +1,8 @@
 ---
 name: interview-prep
 description: Prepare for upcoming interviews — list interviews in the next 14 days, manage prep checklists, generate prep briefs and mock questions. Triggers on interview prep, upcoming interview, prep checklist, mock interview, prepare for interview.
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob
+allowed-tools: Read, Bash, Grep, Glob
+disallowed-tools: Write, Edit
 ---
 
 # Interview Prep
@@ -41,9 +42,27 @@ When asked to prep for an interview, generate:
 For a thorough study plan, hand off to the **interview-research** skill
 (`/jobtrack:research`), which scrapes the posting, web-researches the company,
 fans research across parallel subagents, and writes a study guide to the
-application's `research_dir`. If `research_dir` is already set on the app, read
-`04_study_guide.md` there and fold it into the prep brief instead of
-re-researching.
+application's `research_dir`.
+
+**If `research_dir` is already set on the application**, fold the study guide
+into the prep brief:
+
+1. Read `<research_dir>/04_study_guide.md`.
+2. Extract from it:
+   - **Ordered study topics** — show the top 5 topics the guide recommends
+     focusing on first (prerequisites before advanced).
+   - **Interview cheat-sheet** — pull the "top technical question patterns"
+     and "behavioral questions" sections verbatim.
+   - **Prep tips and pitfalls** — include the guide's "preparation tips" and
+     "common pitfalls" sections.
+   - **Questions to ask** — lift the "questions to ask" section.
+3. Present all of this as part of the prep brief under the heading
+   **"From your study guide"**, clearly labelled so the user knows it came
+   from the research pipeline.
+4. Tell the user: "Study guide from `<research_dir>` (researched <last_research_at>)."
+
+If `research_dir` is set but `04_study_guide.md` doesn't exist yet, say so and
+offer to run `/jobtrack:research` to generate it.
 
 ## Link to Insights
 

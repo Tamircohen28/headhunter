@@ -2,6 +2,7 @@
 name: pipeline
 description: View and manage the Kanban job pipeline — list stage columns with counts and move applications between stages. Triggers on move application, kanban, pipeline, pipeline stage, update status, advance application.
 allowed-tools: Read, Bash, Grep, Glob
+disallowed-tools: Write, Edit
 ---
 
 # Pipeline (Kanban)

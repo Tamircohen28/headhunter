@@ -45,6 +45,13 @@ try {
     (t) => !t.completed && t.due_date && new Date(t.due_date).getTime() < now
   );
 
+  const ACTIVE_STAGES = ["Applied", "Phone Screen", "Technical", "Onsite", "Offer"];
+  const staleThreshold = 7;
+  const staleCutoff = now - staleThreshold * 86400000;
+  const stale = apps.filter(
+    (a) => ACTIVE_STAGES.includes(a.status) && new Date(a.updated_date).getTime() < staleCutoff
+  );
+
   const lines = ["=== JobTrack briefing ==="];
   lines.push(`Pipeline: ${stageLine || "(none active)"}`);
   lines.push(`Total applications: ${apps.length}`);
@@ -59,11 +66,19 @@ try {
   }
   lines.push(`Overdue tasks: ${overdue.length}`);
   for (const t of overdue.slice(0, 5)) lines.push(`  • ${t.title} (due ${t.due_date})`);
+  if (stale.length) {
+    lines.push(`Stale applications (${staleThreshold}+ days without update): ${stale.length}`);
+    for (const a of stale.slice(0, 3)) {
+      const days = Math.floor((now - new Date(a.updated_date).getTime()) / 86400000);
+      lines.push(`  • ${a.company} – ${a.role} (${a.status}, ${days}d)`);
+    }
+    if (stale.length > 3) lines.push(`  … and ${stale.length - 3} more`);
+  }
 
   const active = apps.filter((a) => PIPELINE.indexOf(a.status) > 0 && PIPELINE.indexOf(a.status) < 6).length;
   emit({
     context: lines.join("\n"),
-    title: `JobTrack · ${apps.length} apps · ${active} active${overdue.length ? ` · ${overdue.length} overdue` : ""}`,
+    title: `JobTrack · ${apps.length} apps · ${active} active${overdue.length ? ` · ${overdue.length} overdue` : ""}${stale.length ? ` · ${stale.length} stale` : ""}`,
   });
 } catch (e) {
   // Never block session start on a briefing error.

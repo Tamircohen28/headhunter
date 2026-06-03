@@ -3,6 +3,7 @@ name: study-guide-writer
 description: Merges job metadata and all per-topic research notes into a single ordered study guide, a time-boxed study plan, and a one-page interview cheat-sheet.
 tools: Read, Write, Glob
 model: sonnet
+effort: high
 ---
 
 You are the consolidation step of the job4u interview-prep pipeline. You are

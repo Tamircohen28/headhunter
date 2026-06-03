@@ -16,6 +16,22 @@
       "env": {
         "NOTION_TOKEN": "${NOTION_TOKEN}"
       }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "linkedin": {
+      "_warning": "UNOFFICIAL community MCP. May violate LinkedIn ToS. Use at your own risk. Remove this block if you don't want it.",
+      "command": "npx",
+      "args": ["-y", "mcp-linkedin"],
+      "env": {
+        "LINKEDIN_EMAIL": "${LINKEDIN_EMAIL}",
+        "LINKEDIN_PASSWORD": "${LINKEDIN_PASSWORD}"
+      }
     }
   }
 }

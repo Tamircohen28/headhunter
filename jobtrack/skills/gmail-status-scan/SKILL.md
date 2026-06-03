@@ -2,6 +2,7 @@
 name: gmail-status-scan
 description: Scan Gmail for job-application updates and auto-detect status changes (rejections, offers, interview invites). Triggers on scan gmail, email update, application status from email, check my inbox for job updates.
 allowed-tools: Read, Bash, Grep, Glob
+disallowed-tools: Write, Edit
 ---
 
 # Gmail Status Scan

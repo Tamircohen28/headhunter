@@ -21,6 +21,12 @@
             "command": "node",
             "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/validate-data.js"],
             "continueOnBlock": true
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/post-research-hook.js"],
+            "continueOnBlock": true
           }
         ]
       }

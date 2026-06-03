@@ -3,6 +3,7 @@ name: interview-research
 description: Run the job4u interview-prep research pipeline natively — scrape a job posting, analyze + web-research it, divide topics across parallel research subagents, and merge into a study guide attached to a job application. Triggers on research this job, prep pipeline, study guide, deep research interview, analyze job posting, job4u pipeline.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 effort: high
+context: fork
 ---
 
 # Interview-Research Pipeline
@@ -49,19 +50,55 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js update applications <appId> '{"compan
    `topic_learning_order`.
 2. Split them into batches of `maxTopicsPerAgent` (default 4 — read from
    `settings.json`). N = ceil(topics / 4).
-3. Spawn **N topic-researcher subagents in parallel** — issue all Task calls in
-   a single message. Give each agent its topic batch (main topics + sub-topics),
-   the role/company context, and output path
-   `data/research/<appId>/03_topic_<k>.md`.
+3. **Issue all N Task tool calls in a single message** (parallel fan-out). Give
+   each agent its topic batch, role/company context, and a unique output path.
 
-This is the core of the pipeline — fan-out research, exactly like the original
-multi-agent step, but using native subagents.
+### Worked example (16 topics, maxTopicsPerAgent=4 → N=4)
 
-> **Scaling tip (dynamic workflows):** for postings with many topics, this
-> fan-out is a natural fit for the workflow system. The user can launch it as a
-> dynamic workflow with the `ultracode` keyword (or `/effort xhigh` on Opus 4.8)
-> so the topic-researcher agents run as managed background agents; track them
-> with `/workflows`. The orchestration below is identical either way.
+Suppose `topic_learning_order` = [T1, T2, …, T16]. Send **one message** with
+four Task calls:
+
+```
+Task 1: topic-researcher
+Input: {
+  "topics": ["T1","T2","T3","T4"],
+  "role": "Senior Software Engineer", "company": "Acme",
+  "context": "job metadata summary from 02_job_metadata.json",
+  "output_path": "data/research/<appId>/03_topic_1.md"
+}
+
+Task 2: topic-researcher
+Input: {
+  "topics": ["T5","T6","T7","T8"],
+  "role": "Senior Software Engineer", "company": "Acme",
+  "context": "...",
+  "output_path": "data/research/<appId>/03_topic_2.md"
+}
+
+Task 3: topic-researcher
+Input: {
+  "topics": ["T9","T10","T11","T12"],
+  "role": "Senior Software Engineer", "company": "Acme",
+  "context": "...",
+  "output_path": "data/research/<appId>/03_topic_3.md"
+}
+
+Task 4: topic-researcher
+Input: {
+  "topics": ["T13","T14","T15","T16"],
+  "role": "Senior Software Engineer", "company": "Acme",
+  "context": "...",
+  "output_path": "data/research/<appId>/03_topic_4.md"
+}
+```
+
+Wait for **all four** to return before proceeding to Stage 4. Each agent writes
+its own `03_topic_<k>.md` — study-guide-writer reads them all via Glob.
+
+> **Scaling tip (dynamic workflows):** for postings with many topics, the user
+> can launch with the `ultracode` keyword (or `/effort xhigh` on Opus 4.8) so
+> topic-researcher agents run as managed background agents; track them with
+> `/workflows`. The orchestration above is identical either way.
 
 ## Stage 4 — Merge (subagent: study-guide-writer)
 

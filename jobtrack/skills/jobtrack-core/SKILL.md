@@ -70,6 +70,40 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/timeline.js <appId>    # per-application time
 node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js events <appId> # raw event log
 ```
 
+## Offer comparison
+
+When the user asks to compare offers or salary ranges, read `data/applications.json`
+and filter for applications with `salary_min` or `salary_max` set (or `status: Offer`).
+Render a side-by-side table:
+
+| Company | Role | Status | Currency | Min | Max | Mid | Benefits / Notes |
+|---------|------|--------|----------|-----|-----|-----|-----------------|
+
+- **Mid** = (salary_min + salary_max) / 2, or salary_min if only one is set.
+- **Benefits / Notes** — pull from any note with `note_type: "Offer Details"` linked to that application.
+- Sort by Mid salary descending.
+- If currencies differ, flag it and do NOT convert (show each in its own currency).
+- After the table, highlight the highest-paying offer and note any with equity or
+  benefits mentioned in notes.
+
+## Search and filter
+
+When the user asks to find or filter applications:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js list applications --json
+```
+
+Load the JSON and filter in-memory. Support these patterns:
+- By company or role substring (case-insensitive)
+- By status: `status:<Stage>`
+- By priority: `priority:High|Medium|Low`
+- By remote type: `remote:Remote|Hybrid|On-site`
+- Stale: not updated in 7+ days in ACTIVE_STAGES (Applied, Phone Screen, Technical, Onsite, Offer)
+- Has offer range: `salary_min` or `salary_max` present
+
+For search, also see `/jobtrack:search` for a dedicated search command.
+
 Status changes, additions, and completions are auto-logged to `events.json`,
 which powers the timeline (Application-detail Timeline tab parity).
 

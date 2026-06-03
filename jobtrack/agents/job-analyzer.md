@@ -3,6 +3,7 @@ name: job-analyzer
 description: Scrapes a job posting and conducts web research to produce structured JobMetadata (skills, hiring stages, question patterns, and a 15-25 topic interview-prep hierarchy).
 tools: WebFetch, WebSearch, Read, Write
 model: sonnet
+effort: high
 ---
 
 You are an expert job-posting analyst with real-time web search. You port the
