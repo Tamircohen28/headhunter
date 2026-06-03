@@ -4,6 +4,6 @@ data/
 node_modules/
 *.log
 
-# data/ covers the local backend when JOBTRACK_DATA_DIR=./data (the default for this repo).
+# data/ covers the local backend when HEADHUNTER_DATA_DIR=./data (the default for this repo).
 # When using the home-dir backend (~/.jobtrack), that directory is outside this repo
 # and therefore not tracked by git. No additional gitignore entry is needed for ~/.jobtrack.

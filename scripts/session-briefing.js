@@ -2,7 +2,17 @@
 // SessionStart briefing: counts by stage, interviews in next 48h, overdue tasks.
 // Emits structured SessionStart JSON (additionalContext + sessionTitle) per the
 // v2.1.152 hook output contract. Safe no-op if there's no data.
+const fs = require("fs");
+const path = require("path");
 const { load } = require("./lib");
+
+// Read stale threshold from settings.json (fallback to 7)
+let staleThresholdDays = 7;
+try {
+  const settingsPath = path.join(process.env.CLAUDE_PLUGIN_ROOT || path.join(__dirname, ".."), "settings.json");
+  const cfg = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+  staleThresholdDays = cfg.headhunter?.staleThresholdDays ?? 7;
+} catch (_) {}
 
 function emit({ context, title }) {
   process.stdout.write(
@@ -46,7 +56,7 @@ try {
   );
 
   const ACTIVE_STAGES = ["Applied", "Phone Screen", "Technical", "Onsite", "Offer"];
-  const staleThreshold = 7;
+  const staleThreshold = staleThresholdDays;
   const staleCutoff = now - staleThreshold * 86400000;
   const stale = apps.filter(
     (a) => ACTIVE_STAGES.includes(a.status) && new Date(a.updated_date).getTime() < staleCutoff

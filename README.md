@@ -12,11 +12,11 @@ servers, and small Node scripts.
 
 ```bash
 # add this repo as a marketplace, then install
-/plugin marketplace add ./headhunter      # (uses .claude-plugin/marketplace.json)
+/plugin marketplace add /path/to/headhunter   # uses .claude-plugin/marketplace.json at repo root
 /plugin install headhunter@headhunter-marketplace
 
-# or install directly from a local path
-/plugin install ./headhunter
+# or install directly from the repo root
+/plugin install /path/to/headhunter
 ```
 
 Skills also auto-load if placed under a `.claude/skills` directory. Requires
