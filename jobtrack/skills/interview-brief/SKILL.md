@@ -1,7 +1,7 @@
 ---
 name: interview-brief
 description: Generate a full Interview Intel briefing for an initial recruiter screen or hiring manager intro — company intelligence, role analysis, keyword explainer, what to say, salary guidance in ILS, and prep plan. Triggers on brief, interview brief, interview intel, company research, prep for recruiter, recruiter screen, initial interview, prepare for interview tomorrow.
-allowed-tools: Read, Bash, WebFetch, WebSearch, Glob
+allowed-tools: Read, Bash, WebFetch, WebSearch, Glob, Task
 effort: high
 context: fork
 ---
@@ -20,12 +20,32 @@ If a URL is given, `WebFetch` it first. If a file path is given, `Read` it. If o
 
 ## Load candidate profile
 
-Read `${CLAUDE_PLUGIN_ROOT}/data/candidate-profile.json` (if it exists). Use it to:
+Read `${CLAUDE_PLUGIN_ROOT}/data/candidate-profile.json`. Use it to:
 - Personalize the "Why This Role?" and elevator pitch sections
 - Set the salary baseline (ILS) for the compensation guidance
 - Tailor the emphasis/de-emphasis advice to the candidate's background
 
-If the profile doesn't exist, proceed without it and suggest running `/jobtrack:setup` afterwards.
+If the profile doesn't exist or `experience.key_skills` is empty, tell the user:
+> "Run `/jobtrack:setup` first to build your candidate profile — it personalizes the salary guidance and positioning sections."
+Continue without it (the briefing still works, just less personalized).
+
+## Check for prior scan results
+
+If `$ARGUMENTS` contains an application ID (or if a matching application can be found by company/role), load it:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js get applications <id>
+```
+
+If the application has `match_score` or `success_score` set, include a **Scan Summary** block immediately after the Executive Summary:
+
+```
+> **Prior Scan Results**
+> Match: XX/100 · Success: XX/100 · Verdict: Long Shot
+> Key gaps: [scanner_notes]
+> (Run `/jobtrack:scan` to refresh these scores)
+```
+
+This anchors the briefing to the honest assessment already done.
 
 ---
 

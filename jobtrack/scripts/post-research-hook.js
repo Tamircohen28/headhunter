@@ -29,9 +29,10 @@ try {
   const researchDir = path.dirname(filePath).replace(/^.*?(data[\/\\]research)/, "$1");
   app.research_dir = researchDir;
   app.last_research_at = nowISO();
+  app.research_status = "complete";
   app.updated_date = nowISO();
   save("applications", apps);
-  console.error(`post-research-hook: updated ${appId} → research_dir=${researchDir}`);
+  console.error(`post-research-hook: updated ${appId} → research_dir=${researchDir}, research_status=complete`);
 } catch (e) {
   console.error(`post-research-hook error: ${e.message}`);
 }

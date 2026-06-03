@@ -30,6 +30,19 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/backup.js"],
+            "continueOnBlock": true
+          }
+        ]
+      }
     ]
   }
 }

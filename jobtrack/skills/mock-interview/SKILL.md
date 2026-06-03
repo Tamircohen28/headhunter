@@ -16,6 +16,9 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js list applications --json
 node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js list interviews --json
 ```
 
+If the profile is missing or `experience.key_skills` is empty, stop:
+> "Run `/jobtrack:setup` first — the mock interviewer tailors questions to your background and target role."
+
 Resolve the target application from `$ARGUMENTS` (app ID, company name, or "next interview").
 
 If there's a scheduled upcoming interview, default to that round type. Otherwise ask.
@@ -56,15 +59,23 @@ The agent runs the full interactive session. It asks one question at a time and 
 
 ## Step 4 — After the session
 
-When the mock-interviewer produces its session summary JSON:
+When the mock-interviewer produces its session summary JSON (`{verdict, avg_score, strengths, improvements}`):
 
-1. Save results to the interview record if one exists:
+1. Append the session to `interview.mock_sessions` if an interview record exists:
+   ```bash
+   # Read existing mock_sessions, append new entry, write back
+   node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js update interviews <id> \
+     '{"mock_sessions":[...existing, {"date":"<ISO now>","verdict":"<verdict>","avg_score":<n>,"strengths":[...],"improvements":[...]}]}'
+   ```
+   This lets `/jobtrack:insights` correlate mock performance with real interview outcomes.
+
+2. Also update prep_notes with a summary line:
    ```bash
    node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js update interviews <id> \
-     '{"prep_notes":"Mock session verdict: <verdict>. Strengths: <list>. Improve: <list>"}'
+     '{"prep_notes":"[Mock <date>] Verdict: <verdict>. Score: <n>/5. Top improve: <item1>, <item2>."}'
    ```
 
-2. Offer to:
+3. Offer to:
    - Add prep tasks for the improvement areas → `/jobtrack:add-task`
    - Run another session with a different focus
    - Start the full research pipeline → `/jobtrack:research`

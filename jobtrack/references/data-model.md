@@ -48,6 +48,7 @@ plus `created_date` and `updated_date` (ISO 8601). Any write MUST bump
 | tailored_cv_path | string | | Path to HTML tailored CV (set by `/jobtrack:apply`) |
 | cover_letter_path | string | | Path to cover letter markdown |
 | referral_contact_id | string | | FK → Contact who referred this application |
+| research_status | enum | | not_started / in_progress / complete / stale. Auto-set by post-research-hook |
 | created_date | datetime | auto | |
 | updated_date | datetime | auto | bump on every write |
 
@@ -78,6 +79,7 @@ plus `created_date` and `updated_date` (ISO 8601). Any write MUST bump
 | what_went_poorly | string | | |
 | overall_feeling | enum | | Great, Good, Neutral, Nervous, Poor |
 | key_takeaways | string | | |
+| mock_sessions | array | | `[{ date, verdict, avg_score, strengths[], improvements[] }]` — appended by `/jobtrack:mock` |
 
 ## Task
 

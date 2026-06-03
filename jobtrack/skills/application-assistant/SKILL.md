@@ -26,7 +26,10 @@ Help the candidate submit a strong, tailored application for a specific role.
 node ${CLAUDE_PLUGIN_ROOT}/scripts/candidate-profile.js show
 ```
 
-If no profile or no `cv.text`, tell user to run `/jobtrack:setup` and upload their CV first.
+If no profile or `experience.key_skills` is empty, stop immediately:
+> "Run `/jobtrack:setup` first — the application assistant needs your profile and CV text to tailor anything meaningful."
+
+If profile exists but `cv.text` is empty, ask the user to either paste their CV or provide a file path, then save it before continuing.
 
 Resolve the application: `$ARGUMENTS` may be an app ID, company name, or URL.
 
@@ -39,6 +42,11 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js list applications --json
 Load job metadata if available (from `research_dir/02_job_metadata.json`), or use the application's `job_description` field.
 
 Load scanner results if available (`match_score`, `success_score`, `scanner_notes` on the application record).
+
+**Low score warning:** If `match_score` is set and `match_score < 50`, pause and show:
+> "⚠️ This role scanned at **{match_score}/100** match ({scanner_notes}). You're in Long Shot territory — a tailored CV helps, but won't close a large skills gap.
+> Proceed with tailoring? Or run `/jobtrack:scan` first to understand the gaps."
+Only continue if the user confirms.
 
 ### Step 1 — Spawn agents in parallel
 

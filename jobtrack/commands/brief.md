@@ -1,6 +1,6 @@
 ---
 description: Generate a full Interview Intel briefing for a recruiter screen or first interview. Pass a job URL, pasted description, company name, or recruiter message.
-allowed-tools: Read, Bash, WebFetch, WebSearch, Glob
+allowed-tools: Read, Bash, WebFetch, WebSearch, Glob, Task
 ---
 
 # Interview Brief

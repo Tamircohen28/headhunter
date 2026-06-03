@@ -5,6 +5,33 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.4.0] — 2026-06-03
+
+### Added
+
+- **`/jobtrack:discover` command + `job-discovery` skill** — Searches LinkedIn, AllJobs, Drushim, Indeed, and target company career pages for matching open roles. Uses `job-discoverer` agent with WebSearch + WebFetch. Results ranked by relevance score; filtered against deal_breakers and exclude_companies. Saves selected jobs to pipeline via `save-discovered-jobs.js`. Closes the biggest competitive gap vs. Teal/Sonara.
+- **`/jobtrack:negotiate` command + `salary-negotiation` skill** — Data-driven counter-offer script with market anchoring (Glassdoor/Levels.fyi/Israeli salary surveys), specific counter amount at market p75, levers to pull if base is fixed, verbatim script, walk-away number, and what NOT to say. Uses `salary-negotiator` agent. Competes with Huru.ai and ORO AI.
+- **`/jobtrack:followup` command + `follow-up` skill** — Detects three follow-up scenarios (post-apply silence ≥7d, post-interview silence ≥3d, offer pending ≥2d). Drafts personalized emails per scenario. Sends via Gmail MCP if connected; records sends as notes.
+- **`/jobtrack:network` command + `network-finder` skill** — Finds contacts at a target company via WebSearch + LinkedIn/GitHub MCPs. Uses `network-researcher` agent to draft personalized DM/email outreach (specific hooks, not templates). Maps warm intro paths via existing CRM contacts.
+- **`scripts/draft-followups.js`** — Identifies follow-up-needed applications across all three scenarios. Outputs structured JSON or human-readable drafts.
+- **`scripts/save-discovered-jobs.js`** — Batch-saves discovered job leads to applications.json, deduplicating by URL. Supports `--dry-run` and `--stdin`.
+- **`agents/job-discoverer.md`** — Multi-board job search agent with relevance scoring (title match + location + salary + freshness).
+- **`agents/salary-negotiator.md`** — Full negotiation brief with counter-offer, levers table, scripts, and walk-away signal.
+- **`agents/network-researcher.md`** — Finds and prioritizes contacts, researches recent activity, drafts personalized outreach.
+
+### Fixed (internal quality)
+
+- **`hooks/hooks.json`** — Added `SessionEnd` hook: runs `backup.js` automatically after every Claude session.
+- **`skills/interview-brief/SKILL.md`** — Now reads `match_score`/`success_score` from application record and surfaces a **Prior Scan Summary** block at the top of every briefing. Added `Task` to allowed-tools.
+- **`skills/application-assistant/SKILL.md`** — Warns when `match_score < 50` before generating tailored CV. Standardized profile-required exit pattern.
+- **`skills/mock-interview/SKILL.md`** — Mock session results now persisted to `InterviewRound.mock_sessions` array. Standardized profile-required exit.
+- **`references/data-model.md`** — Added `mock_sessions` to InterviewRound; added `research_status` to JobApplication.
+- **`scripts/enums.js`** — Added `research_status` enum (`not_started / in_progress / complete / stale`).
+- **`scripts/post-research-hook.js`** — Now sets `research_status = "complete"` when study guide is written.
+- **`commands/brief.md`** — Added `Task` to allowed-tools frontmatter.
+
+---
+
 ## [1.3.0] — 2026-06-03
 
 ### Added

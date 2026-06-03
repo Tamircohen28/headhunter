@@ -3,10 +3,13 @@ const PIPELINE = ["Saved", "Applied", "Phone Screen", "Technical", "Onsite", "Of
 const TERMINAL = ["Declined", "Rejected", "Ghosted"];
 const ACTIVE_STAGES = ["Applied", "Phone Screen", "Technical", "Onsite", "Offer"];
 
+const RESEARCH_STATUS = ["not_started", "in_progress", "complete", "stale"];
+
 const ENUMS = {
   status: [...PIPELINE, ...TERMINAL],
   priority: ["High", "Medium", "Low"],
   remote_type: ["Remote", "Hybrid", "On-site"],
+  research_status: RESEARCH_STATUS,
   round_type: ["Recruiter Call", "Phone Screen", "Technical", "System Design",
     "Behavioral", "Take-Home", "Onsite", "Panel", "Final", "Reference Check"],
   interview_status: ["Scheduled", "Completed", "Cancelled", "No-show"],
@@ -19,7 +22,7 @@ const ENUMS = {
 // Which field on which entity maps to which enum (and the interview `status`
 // field is validated separately because it shares a name with application status).
 const FIELD_ENUMS = {
-  applications: { status: "status", priority: "priority", remote_type: "remote_type", currency: "currency" },
+  applications: { status: "status", priority: "priority", remote_type: "remote_type", currency: "currency", research_status: "research_status" },
   interviews: { round_type: "round_type", status: "interview_status", outcome: "outcome", overall_feeling: "overall_feeling" },
   tasks: { priority: "priority" },
   notes: { note_type: "note_type" },
@@ -44,4 +47,4 @@ function validate(entity, record) {
   return errors;
 }
 
-module.exports = { PIPELINE, TERMINAL, ACTIVE_STAGES, ENUMS, FIELD_ENUMS, STATUS_EMOJI, validate };
+module.exports = { PIPELINE, TERMINAL, ACTIVE_STAGES, RESEARCH_STATUS, ENUMS, FIELD_ENUMS, STATUS_EMOJI, validate };
