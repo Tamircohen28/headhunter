@@ -18,6 +18,9 @@ data/research/<slug>/
   …
   NN-study-guide-prompt.md   # prompt for study-guide-writer (NN = last batch + 1)
   04_study_guide.md          # final merged study guide (fixed name)
+  05_full_guide.md           # TOC + numbered topics + all research reports
+  05_full_guide.html         # print layout (optional)
+  {Role} – FULL.pdf          # PDF export (generate-research-pdf.js)
 ```
 
 ### Batch numbering

@@ -83,6 +83,12 @@ Returns: `pre_match_score` (0–100), breakdown by skills/experience/location/sa
 ```bash
 # Generate A4 HTML CV from markdown (open in browser → Cmd+P → PDF)
 node scripts/generate-cv-html.js --input <cv.md> --out <cv.html>
+
+# Interview research: numbered prompts, Deep Research PDF batches, merge PDFs
+node scripts/pipeline-run.js refresh-prompts --dir data/research/<slug>
+OPENAI_API_KEY=... node scripts/deep-research.js --dir data/research/<slug> --batch 03 --pdf
+node scripts/merge-research-pdfs.js --dir data/research/<slug>
+# Fallback if only markdown: merge-research-full.js + generate-research-pdf.js
 ```
 
 ## Job discovery

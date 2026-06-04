@@ -75,9 +75,18 @@ node scripts/pipeline-run.js batch --dir "$RESEARCH_DIR" --topics '["Topic A"]' 
 check "batch creates 03-research-prompt.md" "test -f \"$HEADHUNTER_DATA_DIR/research/$SLUG/03-research-prompt.md\""
 node scripts/deep-research.js --dir "$RESEARCH_DIR" --batch 03 --dry-run >/dev/null 2>&1
 check "deep-research dry-run ok" "test -f \"$HEADHUNTER_DATA_DIR/research/$SLUG/03-research-report.md\""
+node scripts/deep-research.js --dir "$RESEARCH_DIR" --batch 03 --pdf --dry-run >/dev/null 2>&1
+check "deep-research --pdf dry-run writes pdf placeholder" "test -f \"$HEADHUNTER_DATA_DIR/research/$SLUG/03-research-report.pdf\""
 echo "# Guide" > "$HEADHUNTER_DATA_DIR/research/$SLUG/04_study_guide.md"
 GUIDE=$(node scripts/pipeline-run.js finish --dir "$RESEARCH_DIR" --app "$APP_ID" | tail -1)
 check "finish prints 04_study_guide path" "echo \"$GUIDE\" | grep -q '04_study_guide.md'"
+node scripts/pipeline-run.js refresh-prompts --dir "$RESEARCH_DIR" >/dev/null 2>&1
+check "refresh-prompts numbers topics" "grep -q '^1\\. \\*\\*Topic A\\*\\*' \"$HEADHUNTER_DATA_DIR/research/$SLUG/03-research-prompt.md\""
+echo "# Topic" > "$HEADHUNTER_DATA_DIR/research/$SLUG/03-research-report.md"
+echo '{"topic_learning_order":["Topic A"],"topic_hierarchy":{"Topic A":["Sub one"]}}' > "$HEADHUNTER_DATA_DIR/research/$SLUG/02_job_metadata.json"
+node scripts/merge-research-full.js --dir "$RESEARCH_DIR" >/dev/null 2>&1
+check "merge-research-full creates 05_full_guide.md" "test -f \"$HEADHUNTER_DATA_DIR/research/$SLUG/05_full_guide.md\""
+check "full guide has TOC" "grep -qi 'table of contents' \"$HEADHUNTER_DATA_DIR/research/$SLUG/05_full_guide.md\""
 
 echo ""
 echo "Result: $pass passed, $fail failed"

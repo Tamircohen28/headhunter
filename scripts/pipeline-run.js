@@ -4,6 +4,7 @@
 //   init    — create data/research/<slug>/ + 00_run.json
 //   write   — write any artifact (prompt before agent, output after)
 //   batch   — register batch NN + write NN-research-prompt.md from template
+//   refresh-prompts — rewrite all NN-research-prompt.md from manifest + metadata
 //   finish  — verify 04_study_guide.md, link application, print path
 //
 // Usage:
@@ -101,6 +102,7 @@ function cmdBatch(a) {
     location: meta.location,
     topics,
     subtopicsByTopic,
+    topicLearningOrder: meta.topic_learning_order,
   });
 
   const { files } = registerBatch(dir, batchNum, topics);
@@ -111,6 +113,31 @@ function cmdBatch(a) {
     report_file: files.report,
     next: `node scripts/deep-research.js --dir ${a.dir} --batch ${String(batchNum).padStart(2, "0")}`,
   }, null, 2));
+}
+
+function cmdRefreshPrompts(a) {
+  if (!a.dir) die("refresh-prompts requires --dir");
+  const dir = resolveResearchDir(a.dir);
+  const m = loadManifest(dir);
+  const meta = JSON.parse(require("fs").readFileSync(path.join(dir, FILES.jobMetadata), "utf8"));
+  const hierarchy = meta.topic_hierarchy || {};
+  for (const b of [...(m.research_batches || [])].sort((x, y) => x.number - y.number)) {
+    const topics = b.topics || [];
+    const subtopicsByTopic = {};
+    for (const t of topics) subtopicsByTopic[t] = hierarchy[t] || [];
+    const prompt = buildDeepResearchPrompt({
+      company: m.company || meta.company_name || "Company",
+      role: m.role || meta.job_title || "Role",
+      jobUrl: m.job_url || meta.job_url,
+      location: meta.location,
+      topics,
+      subtopicsByTopic,
+      topicLearningOrder: meta.topic_learning_order,
+    });
+    writeFile(dir, b.prompt, prompt);
+    console.error(`Refreshed ${b.prompt}`);
+  }
+  console.log(JSON.stringify({ refreshed: (m.research_batches || []).length }, null, 2));
 }
 
 function cmdFinish(a) {
@@ -138,11 +165,12 @@ function cmdFinish(a) {
 const args = parseArgs(process.argv.slice(2));
 const cmd = args._[0];
 if (!cmd || cmd === "help") {
-  die("Usage: pipeline-run.js <init|write|batch|finish> [options]");
+  die("Usage: pipeline-run.js <init|write|batch|refresh-prompts|finish> [options]");
 }
 
 if (cmd === "init") cmdInit(args);
 else if (cmd === "write") cmdWrite(args);
 else if (cmd === "batch") cmdBatch(args);
+else if (cmd === "refresh-prompts") cmdRefreshPrompts(args);
 else if (cmd === "finish") cmdFinish(args);
 else die(`Unknown command: ${cmd}`);

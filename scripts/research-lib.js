@@ -27,7 +27,23 @@ function researchBatchFiles(batchNum) {
   return {
     prompt: `${nn}-research-prompt.md`,
     report: `${nn}-research-report.md`,
+    reportPdf: `${nn}-research-report.pdf`,
   };
+}
+
+/** Appended to Deep Research prompts when --pdf is used (Code Interpreter PDF). */
+function buildPdfDeliverableInstructions({ batchLabel }) {
+  return `
+
+PDF DELIVERABLE (mandatory):
+After completing web research, use the code_interpreter tool to produce a polished A4 PDF report${batchLabel ? ` for ${batchLabel}` : ""}:
+- Title block with role and company; table of contents for every numbered topic in this batch
+- Body sections use the topic numbers from "Main topics to research" (e.g. "## 3. Topic title", "### 3.1 Subtopic")
+- Readable typography (11–12pt body), margins, page breaks before each main topic
+- Preserve citations and URLs where possible
+Save exactly one PDF in the container named \`research_report.pdf\` (use reportlab, fpdf2, or matplotlib PdfPages).
+The PDF is the primary artifact; also include a short markdown summary in your final message.
+`;
 }
 
 function studyGuidePromptFile(batchNumAfterResearch) {
@@ -129,6 +145,52 @@ function allocateBatchNumber(dir) {
   return n;
 }
 
+/** Standard interview-prep subsections (matches reference PDF style). */
+const RESEARCH_SUBSECTIONS = [
+  { key: "core", label: "Core Concepts and Definitions", patterns: [/core concepts/i] },
+  { key: "relevance", label: "Why It Matters for This Role and Company", patterns: [/why it matters/i] },
+  { key: "questions", label: "Likely Interview Questions", patterns: [/likely interview/i] },
+  { key: "answers", label: "Worked Answers and Examples", patterns: [/worked answers/i] },
+  { key: "resources", label: "Curated Resources", patterns: [/curated resources/i] },
+];
+
+function buildTopicIndex(topicLearningOrder, topicHierarchy) {
+  const topics = topicLearningOrder || [];
+  return topics.map((title, i) => {
+    const num = i + 1;
+    const subs = (topicHierarchy && topicHierarchy[title]) || [];
+    return {
+      num,
+      title,
+      subtopics: subs.map((sub, j) => ({ num: `${num}.${j + 1}`, label: sub })),
+      subsections: RESEARCH_SUBSECTIONS.map((s, j) => ({
+        num: `${num}.${j + 1}`,
+        label: s.label,
+        key: s.key,
+      })),
+    };
+  });
+}
+
+function topicStartIndex(topicLearningOrder, batchTopics) {
+  if (!batchTopics || !batchTopics.length) return 1;
+  const first = batchTopics[0];
+  const idx = (topicLearningOrder || []).indexOf(first);
+  return idx >= 0 ? idx + 1 : 1;
+}
+
+function formatNumberedTopicsBlock(topics, subtopicsByTopic, startIndex = 1) {
+  let n = startIndex;
+  return topics.map((t) => {
+    const subs = (subtopicsByTopic && subtopicsByTopic[t]) || [];
+    const main = `${n}. **${t}**`;
+    n += 1;
+    if (!subs.length) return main;
+    const subLines = subs.map((s, j) => `   ${n - 1}.${j + 1} ${s}`);
+    return `${main}\n${subLines.join("\n")}`;
+  }).join("\n");
+}
+
 function registerBatch(dir, batchNum, topics) {
   const m = loadManifest(dir);
   const files = researchBatchFiles(batchNum);
@@ -138,6 +200,7 @@ function registerBatch(dir, batchNum, topics) {
     topics: topics || [],
     prompt: files.prompt,
     report: files.report,
+    report_pdf: files.reportPdf,
     recorded_at: nowISO(),
   };
   const idx = m.research_batches.findIndex((b) => b.number === batchNum);
@@ -147,11 +210,20 @@ function registerBatch(dir, batchNum, topics) {
   return { batchNum, files };
 }
 
-function buildDeepResearchPrompt({ company, role, jobUrl, topics, subtopicsByTopic, location }) {
-  const topicBlock = topics.map((t) => {
-    const subs = (subtopicsByTopic && subtopicsByTopic[t]) || [];
-    return subs.length ? `- **${t}**\n  Sub-topics: ${subs.join("; ")}` : `- **${t}**`;
-  }).join("\n");
+function buildDeepResearchPrompt({
+  company,
+  role,
+  jobUrl,
+  topics,
+  subtopicsByTopic,
+  location,
+  topicLearningOrder,
+  startTopicNum,
+}) {
+  const start = startTopicNum != null
+    ? startTopicNum
+    : (topicLearningOrder ? topicStartIndex(topicLearningOrder, topics) : 1);
+  const topicBlock = formatNumberedTopicsBlock(topics, subtopicsByTopic, start);
 
   return `Research topic:
 Interview preparation for ${role} at ${company}${location ? ` (${location})` : ""}.
@@ -179,9 +251,9 @@ Sources to avoid:
 - Unverified rumor posts
 
 Output format:
-Markdown report with ## per main topic and ### per sub-topic.
+Markdown report with ## per main topic (use the topic number from the list, e.g. "## 3. Python for production AI and tooling") and ### per numbered sub-topic (e.g. "### 3.1 Type hints and pydantic models").
 
-Required sections (for EACH main topic below):
+Required sections (for EACH sub-topic section, use ### headings):
 1. Core concepts and definitions (technically precise)
 2. Why it matters for this specific role and company
 3. Likely interview questions (technical and behavioral where relevant)
@@ -218,9 +290,13 @@ function finishResearch(dir, { appId }) {
 module.exports = {
   RESEARCH_DIR,
   FILES,
+  RESEARCH_SUBSECTIONS,
   slugify,
   researchBatchFiles,
   studyGuidePromptFile,
+  buildTopicIndex,
+  topicStartIndex,
+  formatNumberedTopicsBlock,
   resolveResearchDir,
   relativeResearchPath,
   loadManifest,
@@ -232,5 +308,6 @@ module.exports = {
   allocateBatchNumber,
   registerBatch,
   buildDeepResearchPrompt,
+  buildPdfDeliverableInstructions,
   finishResearch,
 };

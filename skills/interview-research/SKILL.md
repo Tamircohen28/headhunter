@@ -72,19 +72,37 @@ This writes `03-research-prompt.md`, then `04-research-prompt.md`, etc.
 export OPENAI_API_KEY="..."
 # optional: export OPENAI_DEEP_RESEARCH_MODEL=o3-deep-research
 
-node ${CLAUDE_PLUGIN_ROOT}/scripts/deep-research.js --dir <research_dir> --batch 03
-node ${CLAUDE_PLUGIN_ROOT}/scripts/deep-research.js --dir <research_dir> --batch 04
+# Recommended: PDF per batch (API returns markdown only; --pdf uses code_interpreter)
+node ${CLAUDE_PLUGIN_ROOT}/scripts/deep-research.js --dir <research_dir> --batch 03 --pdf
+node ${CLAUDE_PLUGIN_ROOT}/scripts/deep-research.js --dir <research_dir> --batch 04 --pdf
 ```
 
 Use `--dry-run` to test without API spend. Batches may run in parallel terminals.
 
-Outputs: `03-research-report.md`, `04-research-report.md`, …
+Outputs per batch: `03-research-report.md` + `03-research-report.pdf` (with `--pdf`).
 
 ## Stage 4 — Merge (study-guide-writer)
 
 1. Write full merge prompt to `{NN}-study-guide-prompt.md` where NN = last research batch number + 1.
 
 2. Spawn **study-guide-writer** → output **`04_study_guide.md`** in `<research_dir>/`.
+
+## Stage 5 — Full guide + PDF
+
+**Preferred (API PDFs):** merge batch PDFs only — no markdown→PDF conversion.
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/merge-research-pdfs.js --dir <research_dir>
+```
+
+**Fallback (markdown merge + Chrome print):** if batches have `.md` only:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/merge-research-full.js --dir <research_dir>
+node ${CLAUDE_PLUGIN_ROOT}/scripts/generate-research-pdf.js --dir <research_dir>
+```
+
+Prompts get global topic numbers via `refresh-prompts` after batches are registered.
 
 ## Finish
 
@@ -93,7 +111,7 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-run.js finish \
   --dir <research_dir> --app <appId>
 ```
 
-**Print the path** from stdout to the user: `data/research/<slug>/04_study_guide.md`
+**Print the path** from stdout to the user: `data/research/<slug>/04_study_guide.md` and offer `05_full_guide.pdf` if Stage 5 ran.
 
 ## Rules
 

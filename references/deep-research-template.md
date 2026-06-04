@@ -50,3 +50,16 @@ node scripts/deep-research.js --dir data/research/<slug> --batch 03
 ```
 
 Uses OpenAI **Responses API** with `background: true`, `web_search_preview`, and `max_tool_calls: 50`. See [OpenAI Deep Research docs](https://developers.openai.com/api/docs/guides/deep-research).
+
+### PDF output (not native)
+
+The Deep Research API returns **markdown text only** — there is no `output_format: pdf`. ChatGPT’s “Download as PDF” is a **UI feature**, not available on the API.
+
+To get PDFs programmatically, use **`--pdf`**, which also enables **code_interpreter** and instructs the model to render `research_report.pdf` in its container. The script downloads it to `NN-research-report.pdf` via [container file content](https://platform.openai.com/docs/api-reference/container-files).
+
+```bash
+OPENAI_API_KEY=... node scripts/deep-research.js --dir data/research/<slug> --batch 03 --pdf
+node scripts/merge-research-pdfs.js --dir data/research/<slug>
+```
+
+Merge batch PDFs locally (no re-render from markdown). Requires network once for `npx -p pdf-lib`.
