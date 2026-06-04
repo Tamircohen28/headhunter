@@ -42,7 +42,7 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 /headhunter:brief     → full company intel + salary script (ILS) for recruiter screen
 /headhunter:apply     → tailored CV (HTML) + cover letter for a specific role
 /headhunter:network   → find contacts at target company, draft outreach
-/headhunter:research  → deep multi-agent study guide (scrape → analyze → fan-out)
+/headhunter:research  → study guide (scrape → analyze → OpenAI Deep Research → merge)
 /headhunter:mock      → live mock interview with per-answer feedback
 /headhunter:insights  → post-interview performance analysis + next-round predictor
 /headhunter:negotiate → counter-offer script with market data (ILS)
@@ -89,6 +89,7 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 - **follow-up** — detect and draft follow-up emails for all three scenarios
 - **gmail-status-scan** — classify inbox → detect status changes (with approval gate)
 - **integrations** — Notion / Calendar / Google Tasks / Todoist / CSV / reminders
+- **scaffold-base44-app** — regenerate Base44 React web app (developer mode)
 
 ---
 
@@ -98,7 +99,7 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 |-----|----------|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Storage model, system layers, application + research pipelines, MCP vs scripts |
 | [references/data-model.md](references/data-model.md) | Entity fields and enums |
-| [references/pipeline-output.md](references/pipeline-output.md) | Pipeline run dirs, step artifacts, study-guide path |
+| [Research output layout](references/pipeline-output.md) | `data/research/<slug>/` prompt + report files, `04_study_guide.md` |
 | [references/pipeline.md](references/pipeline.md) | Interview-research pipeline (study guides) |
 | [references/server-functions.md](references/server-functions.md) | External sync behavior |
 | [AGENTS.md](AGENTS.md) | Agent/CLI quick reference |
@@ -134,7 +135,7 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 | `scripts/deep-research.js` | OpenAI Deep Research for topic batches (`OPENAI_API_KEY`) |
 | `scripts/restore.js <backup>` | Restore from snapshot (`--confirm`) |
 | `scripts/validate-data.js` | PostToolUse schema validation |
-| `scripts/test.sh` | 17-check self-test suite |
+| `scripts/test.sh` | 21-check self-test suite |
 
 ---
 
@@ -153,6 +154,8 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 | `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_WHATSAPP_FROM` / `WHATSAPP_TO` | WhatsApp reminders |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | GitHub MCP (profile import, company research) |
 | `LINKEDIN_EMAIL` / `LINKEDIN_PASSWORD` | LinkedIn MCP (unofficial — see `.mcp.json` warning) |
+| `OPENAI_API_KEY` | OpenAI Deep Research for topic batches (`deep-research.js`) |
+| `OPENAI_DEEP_RESEARCH_MODEL` | Optional: `o3-deep-research` or `o4-mini-deep-research` (default) |
 
 Secrets live in your environment only — never commit them. `data/` and `.env` are gitignored.
 

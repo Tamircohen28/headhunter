@@ -40,7 +40,7 @@ External systems hold **copies** linked by IDs on records (`notion_page_id`, `to
 
 | Mirror | When used |
 |--------|-----------|
-| [Base44 web app](skills/scaffold-base44-app/SKILL.md) | If `VITE_BASE44_APP_ID` + token are set |
+| [Base44 web app](../skills/scaffold-base44-app/SKILL.md) | If `VITE_BASE44_APP_ID` + token are set |
 | Notion databases | `sync-notion.js` or Notion MCP for ad-hoc edits |
 | Google Calendar / Tasks | `sync-google-*.js` or Calendar MCP in chat |
 | Todoist | `sync-todoist.js` only (no MCP in this repo) |
@@ -174,7 +174,7 @@ Detail: [references/pipeline-output.md](../references/pipeline-output.md), [refe
 |-------|------|----------|
 | **Skills** | Workflow instructions for the agent; when to call scripts/MCP | `headhunter-core`, `job-scanner`, `follow-up` |
 | **Commands** | Thin entry points (`commands/*.md`) | `pipeline`, `sync`, `dashboard` |
-| **Subagents** | Focused research/interview tasks | `job-analyzer`, `topic-researcher`, `mock-interviewer` |
+| **Subagents** | Focused research/interview tasks | `job-analyzer`, `study-guide-writer`, `mock-interviewer` (+ `deep-research.js` for topic batches) |
 | **Scripts** | Deterministic I/O: CRUD, sync, scoring, export | `crud.js`, `sync-notion.js`, `score-job.js` |
 | **MCP** | Interactive API access in chat | Gmail scan, GitHub profile, Notion browse |
 | **Hooks** | React to file writes | `validate-data.js`, `post-research-hook.js` |
@@ -226,6 +226,8 @@ job4u/
 ├── references/                    # schemas & integration specs
 │   ├── data-model.md
 │   ├── pipeline.md
+│   ├── pipeline-output.md
+│   ├── deep-research-template.md
 │   └── server-functions.md
 ├── settings.json                  # defaults (currency, stale days, research)
 ├── .cursor/mcp.json               # MCP server definitions (Cursor)
@@ -270,7 +272,7 @@ job4u/
 ## Self-test
 
 ```bash
-bash scripts/test.sh    # 17 checks against a temp data dir
+bash scripts/test.sh    # 21 checks against a temp data dir
 node scripts/crud.js seed
 ```
 
