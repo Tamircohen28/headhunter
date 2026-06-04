@@ -10,7 +10,12 @@
       "maxTopicsPerAgent": 4,
       "minTopics": 15,
       "maxTopics": 25,
-      "outputDir": "${CLAUDE_PLUGIN_ROOT}/data/research"
+      "outputDir": "${CLAUDE_PLUGIN_ROOT}/data/research",
+      "deepResearchModel": "o4-mini-deep-research"
+    },
+    "backup": {
+      "maxKeep": 10,
+      "skipIdentical": true
     }
   }
 }

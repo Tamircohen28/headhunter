@@ -57,6 +57,28 @@ check "twilio dry-run works" "node scripts/sync-twilio.js --dry-run 2>&1 | grep 
 # session briefing valid JSON
 check "session briefing emits valid JSON" "node scripts/session-briefing.js | python3 -m json.tool >/dev/null"
 
+# backup dedup
+node scripts/backup.js >/dev/null 2>&1
+before=$(ls -1 "$HEADHUNTER_DATA_DIR/backups" 2>/dev/null | wc -l | tr -d ' ')
+node scripts/backup.js >/dev/null 2>&1
+after=$(ls -1 "$HEADHUNTER_DATA_DIR/backups" 2>/dev/null | wc -l | tr -d ' ')
+check "backup skips identical consecutive snapshot" "[ \"$before\" = \"$after\" ]"
+
+# research run layout (data/research/<slug>/)
+APP_ID=$(node scripts/crud.js add applications '{"company":"PipeCo","role":"Tester","status":"Saved"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+RUN_JSON=$(node scripts/pipeline-run.js init --app "$APP_ID" --slug pipe-test --company PipeCo --role Tester)
+RESEARCH_DIR=$(echo "$RUN_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['research_dir'])")
+SLUG=$(basename "$RESEARCH_DIR")
+node scripts/pipeline-run.js write --dir "$RESEARCH_DIR" --file 01_job_scraper.md --text "fetch url" >/dev/null
+node scripts/pipeline-run.js write --dir "$RESEARCH_DIR" --file 01_job_description.md --text "# JD\nbody" >/dev/null
+node scripts/pipeline-run.js batch --dir "$RESEARCH_DIR" --topics '["Topic A"]' --batch 03 >/dev/null
+check "batch creates 03-research-prompt.md" "test -f \"$HEADHUNTER_DATA_DIR/research/$SLUG/03-research-prompt.md\""
+node scripts/deep-research.js --dir "$RESEARCH_DIR" --batch 03 --dry-run >/dev/null 2>&1
+check "deep-research dry-run ok" "test -f \"$HEADHUNTER_DATA_DIR/research/$SLUG/03-research-report.md\""
+echo "# Guide" > "$HEADHUNTER_DATA_DIR/research/$SLUG/04_study_guide.md"
+GUIDE=$(node scripts/pipeline-run.js finish --dir "$RESEARCH_DIR" --app "$APP_ID" | tail -1)
+check "finish prints 04_study_guide path" "echo \"$GUIDE\" | grep -q '04_study_guide.md'"
+
 echo ""
 echo "Result: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

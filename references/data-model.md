@@ -1,6 +1,10 @@
 # HeadHunter Data Model (source of truth)
 
-All entities are persisted as JSON under `${CLAUDE_PLUGIN_ROOT}/data/`:
+> **Architecture overview** (storage layout, pipelines, MCP vs scripts): [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
+
+There is **no SQL or hosted database** — the “database” is a set of JSON files under the data directory.
+
+All entities are persisted as JSON under `${CLAUDE_PLUGIN_ROOT}/data/` (or `HEADHUNTER_DATA_DIR`):
 
 - `applications.json` — array of JobApplication
 - `interviews.json` — array of InterviewRound
@@ -40,7 +44,7 @@ plus `created_date` and `updated_date` (ISO 8601). Any write MUST bump
 | requirements | string | | Markdown OK |
 | color_label | string | | Hex for Kanban accent |
 | notion_page_id | string | | Set after Notion sync |
-| research_dir | string | | Path to interview-research output (set by the pipeline) |
+| research_dir | string | | Path to `data/research/<slug>/` (e.g. `nvidia-senior-ai-llm-solutions`) |
 | last_research_at | datetime | | When the interview-research pipeline last ran |
 | match_score | number | | 0–100, set by `/headhunter:scan` |
 | success_score | number | | 0–100, set by `/headhunter:scan` |

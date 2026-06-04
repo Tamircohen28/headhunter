@@ -1,6 +1,6 @@
 ---
 name: interview-research
-description: Run the HeadHunter interview-prep research pipeline natively — scrape a job posting, analyze + web-research it, divide topics across parallel research subagents, and merge into a study guide attached to a job application. Triggers on research this job, prep pipeline, study guide, deep research interview, analyze job posting, headhunter research.
+description: Run the HeadHunter interview-prep research pipeline — scrape, analyze, OpenAI Deep Research per topic batch, merge study guide. Triggers on research this job, prep pipeline, study guide, deep research interview, analyze job posting, headhunter research.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 effort: high
 context: fork
@@ -8,119 +8,96 @@ context: fork
 
 # Interview-Research Pipeline
 
-This is the HeadHunter interview-prep pipeline — no Python,
-no OpenAI. You orchestrate it by spawning subagents (the "divide topics among
-agents" pattern the Python `TaskExecutor` used) and persist results into the
-headhunter store. Read `references/pipeline.md` for the full stage map and the
-JobMetadata schema before starting.
+Persist everything under **`data/research/<slug>/`** (human-readable slug, not `app_*`).
+Read `references/pipeline.md`, `references/pipeline-output.md`, `references/deep-research-template.md`.
 
-## Resolve the target application
+## 0 — Application + research directory
 
-The user gives a job URL, a pasted description, or names an existing
-application. Tie every run to a `JobApplication`:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js add applications '{"company":"(pending)","role":"(pending)","job_url":"<url>","status":"Saved","research_status":"in_progress"}'
 
-- If they name/select an existing app, use its `id`.
-- If it's a new URL, create one first (company/role can be filled after Stage 2):
-  ```bash
-  node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js add applications '{"company":"(pending)","role":"(pending)","job_url":"<url>","status":"Saved"}'
-  ```
-  Use the returned `id` as `<appId>`.
+node ${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-run.js init \
+  --app <appId> \
+  --slug "<company-role-slug>" \
+  --url "<job_url>" \
+  --company "<company>" \
+  --role "<role>"
+```
 
-Research lives under `${CLAUDE_PLUGIN_ROOT}/data/research/<appId>/`. Create it
-with `mkdir -p`.
+Use `research_dir` from JSON stdout (e.g. `data/research/nvidia-senior-ai-llm-solutions`).
 
 ## Stage 1 — Scrape
 
-`WebFetch` the `job_url` and extract the posting text (or use pasted text).
-Write it to `data/research/<appId>/01_job_description.md`. If fetch fails, ask
-the user to paste the description.
+1. **Write the full scrape prompt** (WebFetch URL, fallbacks, upload paths):
 
-## Stage 2 — Analyze + research (subagent: job-analyzer)
-
-Spawn the **job-analyzer** subagent via the Task tool, passing the description
-text, the URL, and output path `data/research/<appId>/02_job_metadata.json`.
-After it returns, update the application with the real company/role:
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js update applications <appId> '{"company":"...","role":"..."}'
+node ${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-run.js write \
+  --dir <research_dir> --file 01_job_scraper.md --text "<FULL PROMPT>"
 ```
 
-## Stage 3 — Divide & research topics (subagent: topic-researcher, in PARALLEL)
+2. Perform scrape; **write output**:
 
-1. Read `02_job_metadata.json`. Take `topic_hierarchy` main topics in
-   `topic_learning_order`.
-2. Split them into batches of `maxTopicsPerAgent` (default 4 — read from
-   `settings.json`). N = ceil(topics / 4).
-3. **Issue all N Task tool calls in a single message** (parallel fan-out). Give
-   each agent its topic batch, role/company context, and a unique output path.
-
-### Worked example (16 topics, maxTopicsPerAgent=4 → N=4)
-
-Suppose `topic_learning_order` = [T1, T2, …, T16]. Send **one message** with
-four Task calls:
-
-```
-Task 1: topic-researcher
-Input: {
-  "topics": ["T1","T2","T3","T4"],
-  "role": "Senior Software Engineer", "company": "Acme",
-  "context": "job metadata summary from 02_job_metadata.json",
-  "output_path": "data/research/<appId>/03_topic_1.md"
-}
-
-Task 2: topic-researcher
-Input: {
-  "topics": ["T5","T6","T7","T8"],
-  "role": "Senior Software Engineer", "company": "Acme",
-  "context": "...",
-  "output_path": "data/research/<appId>/03_topic_2.md"
-}
-
-Task 3: topic-researcher
-Input: {
-  "topics": ["T9","T10","T11","T12"],
-  "role": "Senior Software Engineer", "company": "Acme",
-  "context": "...",
-  "output_path": "data/research/<appId>/03_topic_3.md"
-}
-
-Task 4: topic-researcher
-Input: {
-  "topics": ["T13","T14","T15","T16"],
-  "role": "Senior Software Engineer", "company": "Acme",
-  "context": "...",
-  "output_path": "data/research/<appId>/03_topic_4.md"
-}
-```
-
-Wait for **all four** to return before proceeding to Stage 4. Each agent writes
-its own `03_topic_<k>.md` — study-guide-writer reads them all via Glob.
-
-> **Scaling tip (dynamic workflows):** for postings with many topics, the user
-> can launch with the `ultracode` keyword (or `/effort xhigh` on Opus 4.8) so
-> topic-researcher agents run as managed background agents; track them with
-> `/workflows`. The orchestration above is identical either way.
-
-## Stage 4 — Merge (subagent: study-guide-writer)
-
-Spawn **study-guide-writer**, passing the research dir and study config
-(`studyWeeks`, `hoursPerWeek` from settings.json). It writes
-`04_study_guide.md`.
-
-## Wire back to the store
-
-Write a run manifest and link it to the application:
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/crud.js update applications <appId> \
-  '{"research_dir":"data/research/<appId>","last_research_at":"<ISO now>"}'
+node ${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-run.js write \
+  --dir <research_dir> --file 01_job_description.md --text "<extracted JD markdown>"
 ```
-Then surface the study guide path to the user and offer to: add prep tasks
-(via the `pipeline`/`add-task` flows), log the upcoming interview, or open the
-cheat-sheet. The `interview-prep` skill consumes this output for prep briefs.
 
-## Notes
+## Stage 2 — Analyze (job-analyzer subagent)
 
-- Prefer running Stage 3 agents concurrently for speed; if topics are few
-  (≤4) a single agent is fine.
-- Never fabricate research — subagents should mark unknowns rather than invent.
-- Re-running creates fresh `0X_*` files in the same dir (overwrites); tell the
-  user before overwriting a prior run.
+1. **Write the full Task prompt** to `02_job_analyzer.md` (include JD path, output path, research instructions).
+
+2. Spawn **job-analyzer**; it must write `02_job_metadata.json` in `<research_dir>/`.
+
+3. Update application company/role from metadata.
+
+## Stage 3 — Deep Research per topic batch (OpenAI)
+
+**Do not use topic-researcher subagents for new runs.** Use OpenAI Deep Research API.
+
+1. Read `02_job_metadata.json` → split `topic_learning_order` into batches of `maxTopicsPerAgent` (default 4).
+
+2. For each batch, create prompt file:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-run.js batch \
+  --dir <research_dir> \
+  --topics '["Topic A","Topic B","Topic C","Topic D"]'
+```
+
+This writes `03-research-prompt.md`, then `04-research-prompt.md`, etc.
+
+3. Run Deep Research (requires `OPENAI_API_KEY`):
+
+```bash
+export OPENAI_API_KEY="..."
+# optional: export OPENAI_DEEP_RESEARCH_MODEL=o3-deep-research
+
+node ${CLAUDE_PLUGIN_ROOT}/scripts/deep-research.js --dir <research_dir> --batch 03
+node ${CLAUDE_PLUGIN_ROOT}/scripts/deep-research.js --dir <research_dir> --batch 04
+```
+
+Use `--dry-run` to test without API spend. Batches may run in parallel terminals.
+
+Outputs: `03-research-report.md`, `04-research-report.md`, …
+
+## Stage 4 — Merge (study-guide-writer)
+
+1. Write full merge prompt to `{NN}-study-guide-prompt.md` where NN = last research batch number + 1.
+
+2. Spawn **study-guide-writer** → output **`04_study_guide.md`** in `<research_dir>/`.
+
+## Finish
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-run.js finish \
+  --dir <research_dir> --app <appId>
+```
+
+**Print the path** from stdout to the user: `data/research/<slug>/04_study_guide.md`
+
+## Rules
+
+- **Always save full prompts** to `*_prompt.md` / `01_job_scraper.md` / `02_job_analyzer.md` **before** calling agents or APIs.
+- Never fabricate research; mark unknowns in prompts and reports.
+- New slug per run; use `--force` on init only when intentionally overwriting.
+- Do **not** use `data/pipelines/` for new runs (deprecated).

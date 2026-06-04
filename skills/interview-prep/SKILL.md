@@ -77,7 +77,7 @@ into the prep brief:
    from the research pipeline.
 4. Tell the user: "Study guide from `<research_dir>` (researched <last_research_at>)."
 
-If `research_dir` is set but `04_study_guide.md` doesn't exist yet, say so and
+If `research_dir` is set but neither study guide file exists, say so and
 offer to run `/headhunter:research` to generate it.
 
 ## Link to Insights

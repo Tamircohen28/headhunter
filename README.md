@@ -5,6 +5,8 @@ A full-lifecycle job-search assistant: pipeline CRM, interview prep, CV tailorin
 Works with **Claude Code**, **Cursor**, and **OpenAI Codex CLI**.  
 Requires Node.js ≥ 18. No npm dependencies.
 
+**Storage:** there is no separate database server — all CRM data lives in local JSON under `data/` (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture, pipeline, and integration model).
+
 ---
 
 ## Install
@@ -90,6 +92,19 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 
 ---
 
+## Documentation
+
+| Doc | Contents |
+|-----|----------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Storage model, system layers, application + research pipelines, MCP vs scripts |
+| [references/data-model.md](references/data-model.md) | Entity fields and enums |
+| [references/pipeline-output.md](references/pipeline-output.md) | Pipeline run dirs, step artifacts, study-guide path |
+| [references/pipeline.md](references/pipeline.md) | Interview-research pipeline (study guides) |
+| [references/server-functions.md](references/server-functions.md) | External sync behavior |
+| [AGENTS.md](AGENTS.md) | Agent/CLI quick reference |
+
+---
+
 ## Scripts
 
 | Script | Purpose |
@@ -114,7 +129,9 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 | `scripts/sync-google-tasks.js` | Tasks → Google Tasks (`--dry-run`) |
 | `scripts/sync-twilio.js` | WhatsApp reminder digest (`--dry-run`) |
 | `scripts/send-stale-reminders.js` | Stale-app digest via Twilio or stdout (`--dry-run`) |
-| `scripts/backup.js` | Timestamped JSON snapshot |
+| `scripts/backup.js` | Timestamped JSON snapshot (deduped, max 10) |
+| `scripts/pipeline-run.js` | Research dir init / write prompts / batch / finish |
+| `scripts/deep-research.js` | OpenAI Deep Research for topic batches (`OPENAI_API_KEY`) |
 | `scripts/restore.js <backup>` | Restore from snapshot (`--confirm`) |
 | `scripts/validate-data.js` | PostToolUse schema validation |
 | `scripts/test.sh` | 17-check self-test suite |
@@ -157,6 +174,6 @@ Configured in `.mcp.json` (Claude Code) and `.cursor/mcp.json` (Cursor):
 
 ## Testing
 ```bash
-bash scripts/test.sh           # 17 checks — exercises every core feature
+bash scripts/test.sh           # 21 checks — exercises every core feature
 node scripts/crud.js seed      # reset to demo data
 ```

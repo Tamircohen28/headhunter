@@ -14,6 +14,7 @@ Follow the `interview-research` skill end-to-end:
 4. fan out topic-researcher subagents in parallel over topic batches →
 5. study-guide-writer merges into a study guide.
 
-Persist everything under `data/research/<appId>/` and link `research_dir` +
-`last_research_at` onto the application. Finish by showing the study-guide path
-and offering to add prep tasks or log the interview.
+Use `pipeline-run.js` + `deep-research.js` (see `references/pipeline-output.md`).
+Artifacts: `data/research/<slug>/` with `01_job_scraper.md`, `01_job_description.md`,
+`02_job_analyzer.md`, `02_job_metadata.json`, `NN-research-prompt.md` / `NN-research-report.md`,
+`04_study_guide.md`. `finish` **prints** `04_study_guide.md` path.

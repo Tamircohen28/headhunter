@@ -6,6 +6,8 @@ All data lives in `data/*.json` (gitignored). All operations go through Node.js 
 
 Requires Node.js ≥ 18. No npm install needed.
 
+**Architecture:** local JSON store in `data/` (no DB server). See `docs/ARCHITECTURE.md` for pipelines, entity layout, and integrations.
+
 ---
 
 ## Core data operations
@@ -127,8 +129,14 @@ node scripts/export-applications.js --format json --out ./export.json
 ## Backup and restore
 
 ```bash
-node scripts/backup.js                            # snapshot to data/backups/
+node scripts/backup.js                            # snapshot to data/backups/ (skips if identical to latest; keeps 10)
+node scripts/backup.js --prune-duplicates         # remove duplicate backup files on disk
 node scripts/backup.js --out <dir>               # snapshot to custom directory
+node scripts/pipeline-run.js init --app <id> --slug <slug>   # data/research/<slug>/
+node scripts/pipeline-run.js write --dir <slug> --file 01_job_scraper.md --text "..."
+node scripts/pipeline-run.js batch --dir <slug> --topics '["Topic A",...]'
+node scripts/deep-research.js --dir <slug> --batch 03        # OPENAI_API_KEY required
+node scripts/pipeline-run.js finish --dir <slug> --app <id>  # prints 04_study_guide.md path
 node scripts/restore.js <backup.json>            # safety check (shows --confirm prompt)
 node scripts/restore.js <backup.json> --confirm  # actually restore
 ```
@@ -160,7 +168,7 @@ Environment override: `HEADHUNTER_DATA_DIR` — set this to use a different data
 | `match_score` | 0–100, set by job scanner |
 | `success_score` | 0–100, set by job scanner |
 | `research_status` | not_started / in_progress / complete / stale |
-| `research_dir` | Path to `data/research/<appId>/` (set after research pipeline) |
+| `research_dir` | Path to `data/research/<slug>/` (human-readable slug, not `app_*`) |
 | `tailored_cv_path` | Path to generated HTML CV |
 | `cover_letter_path` | Path to cover letter markdown |
 
@@ -176,7 +184,7 @@ Full schema: `references/data-model.md`
 ## Self-test
 
 ```bash
-bash scripts/test.sh    # 17 checks across all core features — run after any change
+bash scripts/test.sh    # 21 checks across all core features — run after any change
 ```
 
-All 17 should pass. If any fail, check that `data/` exists and `node scripts/crud.js seed` ran.
+All 21 should pass. If any fail, check that `data/` exists and `node scripts/crud.js seed` ran.
