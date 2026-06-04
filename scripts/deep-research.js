@@ -170,10 +170,13 @@ async function runDeepResearch(prompt, { model, dryRun, wantPdf, batchLabel }) {
     model,
     input: fullPrompt,
     background: true,
-    reasoning: { summary: "auto" },
     tools,
     max_tool_calls: wantPdf ? 60 : 50,
   };
+  // Reasoning summaries require org verification; skip unless explicitly enabled.
+  if (process.env.OPENAI_DEEP_RESEARCH_REASONING === "auto") {
+    body.reasoning = { summary: "auto" };
+  }
 
   console.error(`Starting deep research (${model})${wantPdf ? " + PDF via code_interpreter" : ""}…`);
   const createRes = await fetch(API, {
