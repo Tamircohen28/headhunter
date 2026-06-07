@@ -2,7 +2,7 @@
 name: job-scorer
 description: Computes a brutally honest Match Score and Success Score for a job application against a candidate profile. Called by the job-scanner skill.
 tools: WebSearch, Read
-model: sonnet
+model: claude-sonnet-4-6
 effort: high
 ---
 

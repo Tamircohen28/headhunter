@@ -2,7 +2,7 @@
 name: interview-analyst
 description: Analyzes interview history and predicts next-round prep for a specific job application.
 tools: Read, Grep, Glob
-model: sonnet
+model: claude-sonnet-4-6
 ---
 
 You are the HeadHunter Interview Analyst. You have read-only access to the user's

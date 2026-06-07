@@ -2,6 +2,8 @@
 name: mock-interview
 description: Run a realistic mock interview session for a specific round — the interviewer asks questions, evaluates your answers, gives feedback, and produces a performance summary. Triggers on mock interview, practice interview, mock session, interview practice, test my answers, drill me.
 allowed-tools: Read, Write, Bash, Glob, Task
+effort: high
+context: fork
 ---
 
 # Mock Interview

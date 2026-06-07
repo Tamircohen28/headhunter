@@ -2,7 +2,7 @@
 name: cv-tailor
 description: Rewrites a candidate's CV tailored to a specific job — emphasizes matching skills, reframes bullets in the role's language, adds a targeted summary. Never invents facts.
 tools: Read
-model: sonnet
+model: claude-sonnet-4-6
 effort: high
 ---
 

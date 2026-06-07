@@ -25,7 +25,29 @@ const REQUIRED = {
   notes: ["application_id", "content"],
 };
 
-const entity = (filePath.match(/([a-z]+)\.json$/i) || [])[1];
+const entity = (filePath.match(/([a-z_-]+)\.json$/i) || [])[1];
+
+// Special case: candidate-profile.json is an object, not an array.
+if (entity === "candidate-profile") {
+  try {
+    const profile = JSON.parse(require("fs").readFileSync(filePath, "utf8"));
+    if (Array.isArray(profile)) {
+      console.error("HeadHunter data validation: candidate-profile.json must be an object, not an array.");
+    } else if (typeof profile !== "object" || profile === null) {
+      console.error("HeadHunter data validation: candidate-profile.json is not a valid JSON object.");
+    } else {
+      const knownKeys = ["personal", "experience", "preferences", "salary", "cv", "availability"];
+      const found = knownKeys.filter(k => k in profile);
+      if (found.length === 0) {
+        console.error("HeadHunter data validation: candidate-profile.json has no recognized top-level keys (expected: personal, experience, preferences, salary, cv, availability).");
+      }
+    }
+  } catch (e) {
+    console.error(`HeadHunter data validation: ${e.message}`);
+  }
+  process.exit(0);
+}
+
 if (!entity || !REQUIRED[entity]) process.exit(0);
 
 try {

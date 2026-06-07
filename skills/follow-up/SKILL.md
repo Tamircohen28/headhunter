@@ -3,6 +3,7 @@ name: follow-up
 description: Draft personalized follow-up emails for stale applications, post-interview silences, and pending offers. Triggers on follow up, send follow-up, check in with recruiter, no response from company, follow up on application, follow up after interview.
 allowed-tools: Read, Bash
 disallowed-tools: Write, Edit
+context: fork
 ---
 
 # Follow-up Automation

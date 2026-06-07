@@ -43,11 +43,14 @@ jobs:
         run: |
           set +e
           FOUND=0
-          # High-signal patterns only — avoid false positives on .env.example stubs
-          grep -rn \
-            -e 'sk-[A-Za-z0-9]\{20,\}' \
-            -e 'AIza[A-Za-z0-9_-]\{35\}' \
-            -e 'AKIA[A-Z0-9]\{16\}' \
+          # High-signal patterns — avoid false positives on .env.example stubs
+          grep -rPn \
+            -e 'sk-[A-Za-z0-9]{20,}' \
+            -e 'AIza[A-Za-z0-9_-]{35}' \
+            -e 'AKIA[A-Z0-9]{16}' \
+            -e 'ghp_[A-Za-z0-9]{36}' \
+            -e 'github_pat_[A-Za-z0-9_]{82}' \
+            -e 'xoxb-[0-9]+-' \
             --include='*.js' --include='*.sh' --include='*.json' \
             --exclude-dir='.git' \
             --exclude='*.example' \

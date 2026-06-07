@@ -2,7 +2,7 @@
 name: cv-reviewer
 description: Reviews a candidate's CV for ATS compatibility, content quality, and keyword gaps against their target roles. Returns a scored, actionable report.
 tools: Read, WebSearch
-model: sonnet
+model: claude-sonnet-4-6
 effort: high
 ---
 

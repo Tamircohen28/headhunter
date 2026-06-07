@@ -2,7 +2,7 @@
 name: salary-negotiator
 description: Analyzes a job offer against market data and produces a specific counter-offer script, levers to pull, walk-away numbers, and what/not to say.
 tools: WebSearch, Read
-model: sonnet
+model: claude-sonnet-4-6
 effort: high
 ---
 

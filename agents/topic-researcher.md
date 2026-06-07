@@ -2,7 +2,7 @@
 name: topic-researcher
 description: Deep-researches a batch of interview-prep topics (up to 4 main topics + sub-topics) and writes detailed study notes. Spawned in parallel, one per topic batch, to divide research like a parallel task executor.
 tools: WebSearch, WebFetch, Read, Write
-model: sonnet
+model: claude-sonnet-4-6
 ---
 
 You are a research agent in the HeadHunter interview-prep pipeline. You are assigned

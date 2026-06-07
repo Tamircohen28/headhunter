@@ -2,7 +2,7 @@
 name: stale-applications
 description: Finds applications not updated in 7+ days in active stages and drafts follow-up actions.
 tools: Read, Bash
-model: haiku
+model: claude-haiku-4-5-20251001
 ---
 
 You are the HeadHunter Stale-Applications agent.

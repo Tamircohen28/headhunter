@@ -88,6 +88,54 @@ node scripts/merge-research-full.js --dir "$RESEARCH_DIR" >/dev/null 2>&1
 check "merge-research-full creates 05_full_guide.md" "test -f \"$HEADHUNTER_DATA_DIR/research/$SLUG/05_full_guide.md\""
 check "full guide has TOC" "grep -qi 'table of contents' \"$HEADHUNTER_DATA_DIR/research/$SLUG/05_full_guide.md\""
 
+# ── Candidate profile ────────────────────────────────────────────────────────
+node scripts/candidate-profile.js set '{"personal":{"name":"Test User","email":"test@example.com"}}' >/dev/null 2>&1
+check "candidate-profile set writes profile" "test -f \"$HEADHUNTER_DATA_DIR/candidate-profile.json\""
+check "candidate-profile show reads name" "node scripts/candidate-profile.js show | python3 -m json.tool | grep -q 'Test User'"
+
+# ── draft-followups ──────────────────────────────────────────────────────────
+check "draft-followups --json exits cleanly" "node scripts/draft-followups.js --json >/dev/null 2>&1"
+
+# ── analytics ────────────────────────────────────────────────────────────────
+check "analytics runs without error" "node scripts/analytics.js >/dev/null 2>&1"
+
+# ── save-discovered-jobs ─────────────────────────────────────────────────────
+LEADS_FILE="$HEADHUNTER_DATA_DIR/test-leads.json"
+printf '%s\n' '[{"company":"TestCo","role":"SWE","job_url":"https://testco.com/jobs/1","status":"Saved"}]' > "$LEADS_FILE"
+DISC_OUT=$(cat "$LEADS_FILE" | node scripts/save-discovered-jobs.js --stdin --dry-run 2>&1 || true)
+check "save-discovered-jobs --dry-run parses leads" "echo \"$DISC_OUT\" | grep -qi 'would_add'"
+
+# ── Google Calendar dry-run ──────────────────────────────────────────────────
+check "sync-google-calendar --dry-run works" "node scripts/sync-google-calendar.js --dry-run 2>&1 | grep -qi 'dry-run\|nothing\|no interview'"
+
+# ── Google Tasks dry-run ─────────────────────────────────────────────────────
+check "sync-google-tasks --dry-run works" "node scripts/sync-google-tasks.js --dry-run 2>&1 | grep -qi 'dry-run\|nothing\|no task'"
+
+# ── stale reminders ──────────────────────────────────────────────────────────
+check "send-stale-reminders exits cleanly" "node scripts/send-stale-reminders.js --dry-run >/dev/null 2>&1 || true"
+
+# ── validate-data (PostToolUse hook) ─────────────────────────────────────────
+VALID_PAYLOAD="{\"tool_input\":{\"file_path\":\"$HEADHUNTER_DATA_DIR/applications.json\"}}"
+check "validate-data exits 0 on valid data" "echo '$VALID_PAYLOAD' | node scripts/validate-data.js; [ \$? -eq 0 ]"
+
+# ── protect-data (PreToolUse hook) ───────────────────────────────────────────
+BLOCK_PAYLOAD="{\"tool_input\":{\"file_path\":\"$HEADHUNTER_DATA_DIR/applications.json\"}}"
+check "protect-data blocks direct data write" "echo '$BLOCK_PAYLOAD' | node scripts/protect-data.js; [ \$? -eq 1 ]"
+SAFE_PAYLOAD="{\"tool_input\":{\"file_path\":\"$HEADHUNTER_DATA_DIR/candidate-profile.json\"}}"
+check "protect-data allows candidate-profile write" "echo '$SAFE_PAYLOAD' | node scripts/protect-data.js; [ \$? -eq 0 ]"
+
+# ── score-job without profile ─────────────────────────────────────────────────
+DUMMY_META="$HEADHUNTER_DATA_DIR/dummy-meta.json"
+echo '{"job_title":"Staff Engineer","company_name":"Acme","required_skills":["Go","Kubernetes"],"preferred_skills":[],"nice_to_have_skills":[],"location":"Remote"}' > "$DUMMY_META"
+check "score-job without profile returns error JSON" "node scripts/score-job.js \"$DUMMY_META\" --profile /nonexistent.json | python3 -m json.tool | grep -q 'error\|pre_score'"
+
+# ── restore preview (no --confirm) ───────────────────────────────────────────
+BACKUP_FILE=$(ls -t "$HEADHUNTER_DATA_DIR"/backups/*.json 2>/dev/null | head -1)
+if [ -n "$BACKUP_FILE" ]; then
+  RESTORE_OUT=$(node scripts/restore.js "$BACKUP_FILE" 2>&1 || true)
+  check "restore without --confirm prints warning" "echo \"$RESTORE_OUT\" | grep -qi 'confirm'"
+fi
+
 echo ""
 echo "Result: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

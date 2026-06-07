@@ -2,7 +2,7 @@
 name: job-discoverer
 description: Searches multiple job boards (LinkedIn, AllJobs, Drushim, Indeed, company career pages) for roles matching a candidate profile, filters against deal breakers, and returns structured job leads.
 tools: WebSearch, WebFetch
-model: sonnet
+model: claude-sonnet-4-6
 effort: high
 ---
 

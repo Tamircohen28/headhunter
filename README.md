@@ -4,6 +4,10 @@
 
 # HeadHunter — AI Job Search Co-pilot
 
+[![CI](https://github.com/TamirCohen28/headhunter/actions/workflows/ci.yml/badge.svg)](https://github.com/TamirCohen28/headhunter/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node.js ≥ 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+
 A full-lifecycle job-search assistant: pipeline CRM, interview prep, CV tailoring, job discovery, salary negotiation, network mapping, and analytics — all from your terminal.
 
 Works with **Claude Code**, **Cursor**, and **OpenAI Codex CLI**.  
@@ -101,11 +105,14 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 
 | Doc | Contents |
 |-----|----------|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Storage model, system layers, application + research pipelines, MCP vs scripts |
+| [docs/user/quick-start.md](docs/user/quick-start.md) | Install → seed → first scan in 5 minutes |
+| [docs/user/concepts.md](docs/user/concepts.md) | Pipeline, skills, agents, data model explained |
+| [docs/user/troubleshooting.md](docs/user/troubleshooting.md) | Common errors + fixes |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Storage model, system layers, pipelines, MCP vs scripts |
+| [docs/engineering/architecture/overview.md](docs/engineering/architecture/overview.md) | Layer breakdown, data flow, design invariants |
+| [docs/engineering/decisions/001-local-json-store.md](docs/engineering/decisions/001-local-json-store.md) | ADR: why flat JSON over SQLite/MongoDB |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | How to contribute |
 | [references/data-model.md](references/data-model.md) | Entity fields and enums |
-| [Research output layout](references/pipeline-output.md) | `data/research/<slug>/` prompt + report files, `04_study_guide.md` |
-| [references/pipeline.md](references/pipeline.md) | Interview-research pipeline (study guides) |
-| [references/server-functions.md](references/server-functions.md) | External sync behavior |
 | [AGENTS.md](AGENTS.md) | Agent/CLI quick reference |
 
 ---
