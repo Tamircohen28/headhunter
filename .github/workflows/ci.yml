@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check JS syntax
+        run: |
+          for f in scripts/*.js; do node --check "$f"; done
+      - name: Shell lint
+        run: |
+          sudo apt-get install -y shellcheck
+          shellcheck scripts/parse-csv-import.sh scripts/test.sh
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run self-test suite
+        run: bash scripts/test.sh
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for leaked secrets
+        run: |
+          set +e
+          FOUND=0
+          # High-signal patterns only — avoid false positives on .env.example stubs
+          grep -rn \
+            -e 'sk-[A-Za-z0-9]\{20,\}' \
+            -e 'AIza[A-Za-z0-9_-]\{35\}' \
+            -e 'AKIA[A-Z0-9]\{16\}' \
+            --include='*.js' --include='*.sh' --include='*.json' \
+            --exclude-dir='.git' \
+            --exclude='*.example' \
+            . && FOUND=1
+          if [ $FOUND -eq 1 ]; then
+            echo "Potential secret detected. Review the matches above."
+            exit 1
+          fi
+          echo "No secrets found."

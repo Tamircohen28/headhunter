@@ -202,7 +202,7 @@ Every meaningful CRM change appends to `events.json`:
 ## Directory layout
 
 ```
-job4u/
+headhunter/
 ├── data/                          # gitignored — your CRM (JSON + research)
 │   ├── applications.json
 │   ├── interviews.json

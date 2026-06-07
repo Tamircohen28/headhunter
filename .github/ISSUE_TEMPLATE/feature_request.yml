@@ -1,0 +1,47 @@
+name: Feature request
+description: Suggest a new command, integration, or improvement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! Describe what you'd like added or changed.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What workflow is painful or missing today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe what you'd like HeadHunter to do.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Any workarounds you're using today?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Pipeline / CRM
+        - Job discovery
+        - Job scoring
+        - Interview prep / research
+        - CV / cover letter
+        - Mock interview
+        - Salary negotiation
+        - Network / outreach
+        - Analytics
+        - Integrations (Notion, Calendar, Todoist, etc.)
+        - Other
