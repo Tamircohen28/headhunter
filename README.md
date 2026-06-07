@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="HeadHunter — AI Job-Search Co-pilot" width="100%" />
+</p>
+
 # HeadHunter — AI Job Search Co-pilot
 
 A full-lifecycle job-search assistant: pipeline CRM, interview prep, CV tailoring, job discovery, salary negotiation, network mapping, and analytics — all from your terminal.
