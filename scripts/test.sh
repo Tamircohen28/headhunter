@@ -3,7 +3,8 @@
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export CLAUDE_PLUGIN_ROOT="$ROOT"
-export HEADHUNTER_DATA_DIR="$(mktemp -d)"
+HEADHUNTER_DATA_DIR="$(mktemp -d)"
+export HEADHUNTER_DATA_DIR
 trap 'rm -rf "$HEADHUNTER_DATA_DIR"' EXIT
 
 pass=0; fail=0
@@ -11,7 +12,7 @@ ok()   { echo "  ✅ $1"; pass=$((pass+1)); }
 no()   { echo "  ❌ $1"; fail=$((fail+1)); }
 check(){ if eval "$2"; then ok "$1"; else no "$1"; fi; }
 
-cd "$ROOT"
+cd "$ROOT" || exit 1
 echo "HeadHunter self-test (data: $HEADHUNTER_DATA_DIR)"
 
 node scripts/crud.js seed >/dev/null 2>&1
@@ -59,9 +60,9 @@ check "session briefing emits valid JSON" "node scripts/session-briefing.js | py
 
 # backup dedup
 node scripts/backup.js >/dev/null 2>&1
-before=$(ls -1 "$HEADHUNTER_DATA_DIR/backups" 2>/dev/null | wc -l | tr -d ' ')
+before=$(find "$HEADHUNTER_DATA_DIR/backups" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
 node scripts/backup.js >/dev/null 2>&1
-after=$(ls -1 "$HEADHUNTER_DATA_DIR/backups" 2>/dev/null | wc -l | tr -d ' ')
+after=$(find "$HEADHUNTER_DATA_DIR/backups" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
 check "backup skips identical consecutive snapshot" "[ \"$before\" = \"$after\" ]"
 
 # research run layout (data/research/<slug>/)
@@ -102,7 +103,7 @@ check "analytics runs without error" "node scripts/analytics.js >/dev/null 2>&1"
 # ── save-discovered-jobs ─────────────────────────────────────────────────────
 LEADS_FILE="$HEADHUNTER_DATA_DIR/test-leads.json"
 printf '%s\n' '[{"company":"TestCo","role":"SWE","job_url":"https://testco.com/jobs/1","status":"Saved"}]' > "$LEADS_FILE"
-DISC_OUT=$(cat "$LEADS_FILE" | node scripts/save-discovered-jobs.js --stdin --dry-run 2>&1 || true)
+DISC_OUT=$(node scripts/save-discovered-jobs.js --stdin --dry-run < "$LEADS_FILE" 2>&1 || true)
 check "save-discovered-jobs --dry-run parses leads" "echo \"$DISC_OUT\" | grep -qi 'would_add'"
 
 # ── Google Calendar dry-run ──────────────────────────────────────────────────
@@ -130,7 +131,7 @@ echo '{"job_title":"Staff Engineer","company_name":"Acme","required_skills":["Go
 check "score-job without profile returns error JSON" "node scripts/score-job.js \"$DUMMY_META\" --profile /nonexistent.json | python3 -m json.tool | grep -q 'error\|pre_score'"
 
 # ── restore preview (no --confirm) ───────────────────────────────────────────
-BACKUP_FILE=$(ls -t "$HEADHUNTER_DATA_DIR"/backups/*.json 2>/dev/null | head -1)
+BACKUP_FILE=$(find "$HEADHUNTER_DATA_DIR/backups" -maxdepth 1 -name "*.json" 2>/dev/null | sort -rn | head -1)
 if [ -n "$BACKUP_FILE" ]; then
   RESTORE_OUT=$(node scripts/restore.js "$BACKUP_FILE" 2>&1 || true)
   check "restore without --confirm prints warning" "echo \"$RESTORE_OUT\" | grep -qi 'confirm'"
