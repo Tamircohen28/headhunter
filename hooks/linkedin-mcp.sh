@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Wrapper for mcp-linkedin. Checks required env vars before launching so that
-# /mcp failure messages are actionable rather than a bare -32000 error.
+# Wrapper for mcp-linkedin. Checks required env vars before launching.
+# On missing vars, emits a JSON-RPC error to stdout (parsed by Claude Code)
+# so the /mcp failure message is actionable rather than a bare -32000.
 set -euo pipefail
 
 MISSING=()
@@ -8,11 +9,8 @@ MISSING=()
 [[ -z "${LINKEDIN_PASSWORD:-}" ]] && MISSING+=("LINKEDIN_PASSWORD")
 
 if [[ ${#MISSING[@]} -gt 0 ]]; then
-  echo "LinkedIn MCP: missing env vars: ${MISSING[*]}" >&2
-  echo "  Add to ~/.zshrc and source it:" >&2
-  echo "    export LINKEDIN_EMAIL=you@email.com" >&2
-  echo "    export LINKEDIN_PASSWORD=yourpassword" >&2
-  echo "  ⚠  This is an unofficial MCP and may violate LinkedIn ToS." >&2
+  MSG="LinkedIn MCP not configured — missing: ${MISSING[*]}. Add to ~/.zshrc: export LINKEDIN_EMAIL=you@email.com && export LINKEDIN_PASSWORD=yourpassword && source ~/.zshrc. WARNING: unofficial MCP, may violate LinkedIn ToS."
+  printf '{"jsonrpc":"2.0","error":{"code":-32000,"message":"%s"},"id":null}\n' "$MSG"
   exit 1
 fi
 
