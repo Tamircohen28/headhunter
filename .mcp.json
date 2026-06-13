@@ -1,14 +1,18 @@
 {
   "mcpServers": {
     "gmail": {
+      "_setup": "Run once to auth: npx @gongrzhe/server-gmail-autoauth-mcp auth",
       "command": "npx",
-      "args": ["-y", "@anthropic/gmail-mcp-server"],
+      "args": ["-y", "@gongrzhe/server-gmail-autoauth-mcp"],
       "env": {}
     },
     "google-calendar": {
+      "_setup": "Set CREDENTIALS_PATH to your Google OAuth credentials.json (see https://github.com/am2rican5/mcp-google-calendar)",
       "command": "npx",
-      "args": ["-y", "@anthropic/google-calendar-mcp-server"],
-      "env": {}
+      "args": ["-y", "mcp-google-calendar"],
+      "env": {
+        "CREDENTIALS_PATH": "${GOOGLE_CALENDAR_CREDENTIALS_PATH}"
+      }
     },
     "notion": {
       "command": "npx",

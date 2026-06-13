@@ -1,6 +1,6 @@
 {
   "name": "headhunter",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Job search CRM with pipeline, interviews, tasks, and Gmail/Calendar/Notion/Todoist integrations.",
   "author": {
     "name": "Tamir Cohen"
@@ -29,6 +29,7 @@
       "TWILIO_WHATSAPP_FROM",
       "WHATSAPP_TO",
       "GITHUB_PERSONAL_ACCESS_TOKEN",
+      "GOOGLE_CALENDAR_CREDENTIALS_PATH",
       "LINKEDIN_EMAIL",
       "LINKEDIN_PASSWORD"
     ]
