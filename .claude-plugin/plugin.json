@@ -1,6 +1,6 @@
 {
   "name": "headhunter",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Job search CRM with pipeline, interviews, tasks, and Gmail/Calendar/Notion/Todoist integrations.",
   "author": {
     "name": "Tamir Cohen"
