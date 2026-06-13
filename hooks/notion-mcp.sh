@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
-# Wrapper for @notionhq/notion-mcp-server. Checks NOTION_TOKEN before launching
-# so that /mcp failure messages are actionable rather than a bare -32000 error.
+# Wrapper for @notionhq/notion-mcp-server. Checks NOTION_TOKEN before launching.
+# On missing token, emits a JSON-RPC error to stdout (parsed by Claude Code)
+# so the /mcp failure message is actionable rather than a bare -32000.
 set -euo pipefail
 
 if [[ -z "${NOTION_TOKEN:-}" ]]; then
-  echo "Notion MCP: missing \$NOTION_TOKEN" >&2
-  echo "  1. Go to https://www.notion.so/my-integrations → '+ New integration'" >&2
-  echo "  2. Copy the Internal Integration Secret (starts with secret_...)" >&2
-  echo "  3. Add to ~/.zshrc:" >&2
-  echo "       export NOTION_TOKEN=secret_..." >&2
-  echo "       source ~/.zshrc" >&2
+  MSG="Notion MCP not configured — missing: NOTION_TOKEN. Get it at https://www.notion.so/my-integrations then add to ~/.zshrc: export NOTION_TOKEN=secret_... && source ~/.zshrc"
+  printf '{"jsonrpc":"2.0","error":{"code":-32000,"message":"%s"},"id":null}\n' "$MSG"
   exit 1
 fi
 
