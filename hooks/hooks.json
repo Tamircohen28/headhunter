@@ -22,6 +22,17 @@
             "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/session-briefing.js"]
           }
         ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/check-mcp-env.js"],
+            "continueOnBlock": true
+          }
+        ]
       }
     ],
     "PostToolUse": [
