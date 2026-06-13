@@ -83,18 +83,6 @@ const GROUPS = [
       "   export OPENAI_DEEP_RESEARCH_MODEL=o3",
     ],
   },
-  {
-    name: "LinkedIn MCP (unofficial)",
-    vars: ["LINKEDIN_EMAIL", "LINKEDIN_PASSWORD"],
-    instructions: [
-      "⚠  Unofficial community MCP — may violate LinkedIn ToS. Use at your own risk.",
-      "Add to ~/.zshrc:",
-      "   export LINKEDIN_EMAIL=you@email.com",
-      "   export LINKEDIN_PASSWORD=yourpassword",
-      "   source ~/.zshrc",
-      "Or remove the linkedin block from the plugin's .mcp.json to silence this warning.",
-    ],
-  },
 ];
 
 function emit(context) {

@@ -6,15 +6,6 @@
       "env": {
         "NOTION_TOKEN": "${NOTION_TOKEN}"
       }
-    },
-    "linkedin": {
-      "_warning": "UNOFFICIAL community MCP. May violate LinkedIn ToS. Use at your own risk. Remove this block if you don't want it.",
-      "command": "bash",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/linkedin-mcp.sh"],
-      "env": {
-        "LINKEDIN_EMAIL": "${LINKEDIN_EMAIL}",
-        "LINKEDIN_PASSWORD": "${LINKEDIN_PASSWORD}"
-      }
     }
   }
 }

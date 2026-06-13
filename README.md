@@ -164,7 +164,7 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 | `TODOIST_API_TOKEN` | Todoist sync |
 | `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_WHATSAPP_FROM` / `WHATSAPP_TO` | WhatsApp reminders |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | GitHub MCP (profile import, company research) |
-| `LINKEDIN_EMAIL` / `LINKEDIN_PASSWORD` | LinkedIn MCP (unofficial — see `.mcp.json` warning) |
+| `LINKEDIN_EMAIL` / `LINKEDIN_PASSWORD` | LinkedIn MCP (unofficial, opt-in — see below) |
 | `OPENAI_API_KEY` | OpenAI Deep Research for topic batches (`deep-research.js`) |
 | `OPENAI_DEEP_RESEARCH_MODEL` | Optional: `o3-deep-research` or `o4-mini-deep-research` (default) |
 
@@ -174,15 +174,36 @@ Secrets live in your environment only — never commit them. `data/` and `.env` 
 
 ## MCP servers
 
-Configured in `.mcp.json` (Claude Code) and `.cursor/mcp.json` (Cursor):
+Configured in `.mcp.json`. Active by default:
 
 | Server | Package | Purpose |
 |--------|---------|---------|
-| Gmail | `@anthropic/gmail-mcp-server` | Email scanning + follow-up sending |
-| Google Calendar | `@anthropic/google-calendar-mcp-server` | Interview scheduling |
-| Notion | `@notionhq/notion-mcp-server` | Application + task sync |
-| GitHub | `@modelcontextprotocol/server-github` | Profile import, company research |
-| LinkedIn | `mcp-linkedin` (community ⚠️) | Job search, company pages |
+| Gmail | official claude.ai integration | Email scanning + follow-up (authenticate via `/mcp`) |
+| Google Calendar | official claude.ai integration | Interview scheduling (authenticate via `/mcp`) |
+| Notion | `@notionhq/notion-mcp-server` | Application + task sync (requires `NOTION_TOKEN`) |
+| GitHub | `tamirs-superpowers` plugin | Profile import, company research (zero-config via `gh` CLI) |
+
+### LinkedIn MCP (opt-in)
+
+The LinkedIn MCP is an **unofficial community package** that may violate LinkedIn ToS. It is **not included by default**. To enable it, set your credentials in `~/.zshrc`:
+
+```bash
+export LINKEDIN_EMAIL=you@email.com
+export LINKEDIN_PASSWORD=yourpassword
+```
+
+Then add this block to your plugin's `.mcp.json` (find it at `~/.claude/plugins/cache/tamirs-plugins/headhunter/<version>/.mcp.json`):
+
+```json
+"linkedin": {
+  "command": "bash",
+  "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/linkedin-mcp.sh"],
+  "env": {
+    "LINKEDIN_EMAIL": "${LINKEDIN_EMAIL}",
+    "LINKEDIN_PASSWORD": "${LINKEDIN_PASSWORD}"
+  }
+}
+```
 
 ---
 
