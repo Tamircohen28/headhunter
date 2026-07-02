@@ -14,6 +14,96 @@ _Nothing yet. Add entries here as you land changes; they roll into the next rele
 
 ---
 
+## [1.4.7] — 2026-06-13
+
+### Changed
+
+- **LinkedIn MCP is now opt-in** (#9) — Removed the unofficial community `linkedin`
+  server from the default `.mcp.json`. It fails to connect for any user who hasn't set
+  `LINKEDIN_EMAIL`/`LINKEDIN_PASSWORD`, producing a permanent `/mcp` failure with no
+  actionable message. Users who want it add the block manually per new README
+  instructions. LinkedIn was also dropped from the session-start env check
+  (`check-mcp-env.js`) since the server is no longer active by default.
+
+---
+
+## [1.4.6] — 2026-06-13
+
+### Fixed
+
+- **MCP wrapper scripts emit a JSON-RPC error to stdout** (#8) — Claude Code discards
+  stderr from MCP servers, so the actionable "missing env var" message from the wrapper
+  scripts never surfaced in `/mcp`. `hooks/linkedin-mcp.sh` and `hooks/notion-mcp.sh`
+  now return a proper JSON-RPC error payload on stdout, which Claude Code parses and
+  displays inline in the `/mcp` failure output instead of the opaque
+  `-32000: Connection closed`.
+
+---
+
+## [1.4.5] — 2026-06-13
+
+### Added
+
+- **`hooks/linkedin-mcp.sh` + `hooks/notion-mcp.sh` env-check wrappers** (#7) — Wrap the
+  bare `npx` MCP launches; they check required env vars before starting the server and
+  print exact `export` commands when any are missing. Pattern mirrors
+  tamirs-superpowers' `github-mcp.sh`. `.mcp.json` now invokes the wrappers instead of
+  `npx` directly.
+
+---
+
+## [1.4.4] — 2026-06-13
+
+### Changed
+
+- **Session-start env check expanded to all 14 optional integration vars** (#6) —
+  `scripts/check-mcp-env.js` previously only covered `NOTION_TOKEN`, `LINKEDIN_EMAIL`,
+  and `LINKEDIN_PASSWORD`. It now checks Notion (token + both database IDs), Google
+  Calendar, Google Tasks, Todoist, Twilio/WhatsApp, and OpenAI deep research, plus
+  LinkedIn. Each group shows only the vars actually missing, with exact `export`
+  commands and where to find the values. Silent when all are set.
+
+---
+
+## [1.4.3] — 2026-06-13
+
+### Added
+
+- **`scripts/check-mcp-env.js` + SessionStart hook** (#5) — Runs at session start and
+  warns via `additionalContext` when `NOTION_TOKEN`, `LINKEDIN_EMAIL`, or
+  `LINKEDIN_PASSWORD` are missing, with step-by-step setup instructions per missing
+  server. Silent no-op when all vars are set; never blocks session start
+  (`continueOnBlock: true`).
+
+---
+
+## [1.4.2] — 2026-06-13
+
+### Removed
+
+- **Redundant Gmail, Google Calendar, and GitHub MCP servers** (#4) — Removed from
+  `.mcp.json`. Gmail and Calendar are covered by the official claude.ai platform
+  integrations (authenticated via `/mcp`); GitHub is already provided zero-config by
+  tamirs-superpowers. The duplicate local npm servers caused `/doctor` failures on
+  every startup with no benefit. Only `notion` and `linkedin` remain.
+
+---
+
+## [1.4.1] — 2026-06-13
+
+### Fixed
+
+- **Replaced non-existent Anthropic Gmail/Calendar npm packages** (#3) —
+  `@anthropic/gmail-mcp-server` and `@anthropic/google-calendar-mcp-server` do not exist
+  on npm and caused MCP connection failures on every startup. Swapped for real working
+  packages: `@gongrzhe/server-gmail-autoauth-mcp` (Gmail, OAuth auto-auth) and
+  `mcp-google-calendar` (requires `GOOGLE_CALENDAR_CREDENTIALS_PATH`). Both need a
+  one-time Google OAuth setup, documented in `_setup` comments in `.mcp.json`.
+  _(Note: these local Gmail/Calendar servers were removed again in 1.4.2 in favor of the
+  official claude.ai platform integrations.)_
+
+---
+
 ## [1.4.0] — 2026-06-03
 
 ### Added
@@ -38,6 +128,52 @@ _Nothing yet. Add entries here as you land changes; they roll into the next rele
 - **`scripts/enums.js`** — Added `research_status` enum (`not_started / in_progress / complete / stale`).
 - **`scripts/post-research-hook.js`** — Now sets `research_status = "complete"` when study guide is written.
 - **`commands/brief.md`** — Added `Task` to allowed-tools frontmatter.
+
+### Added — later 1.4.0 work (2026-06-03 → 2026-06-08, shipped under the same 1.4.0 version, previously unlogged)
+
+- **Cursor + Codex support** — Added `AGENTS.md` as the canonical, tool-agnostic agent
+  guide (shared by Claude Code, Cursor, and Codex), plus `.cursor/mcp.json` and
+  `.cursor/rules/headhunter.mdc`. Removed all legacy `job4u` references and rewrote the
+  README. (`976e398`)
+- **Deep Research pipeline overhaul** — Restructured interview-research output under
+  `data/research/<slug>/`. Added `scripts/deep-research.js` (OpenAI Deep Research
+  integration), `scripts/pipeline-run.js` (orchestrates the multi-step run), and
+  `scripts/research-lib.js` shared helpers. New `docs/ARCHITECTURE.md`,
+  `references/pipeline-output.md`, and `references/deep-research-template.md`. `backup.js`
+  extended to cover the research tree. (`159988b`)
+- **Research PDF pipeline** — Added `scripts/generate-research-pdf.js`,
+  `scripts/merge-research-full.js`, and `scripts/merge-research-pdfs.js`: numbered
+  per-topic PDFs, a merged full report, and OpenAI batch PDF generation. Added
+  `.env.example` keys for the pipeline. (`58f1508`)
+- **Deep Research reasoning summary is opt-in** — Reasoning summaries are only requested
+  when the OpenAI org is verified, avoiding API errors for unverified orgs. (`644abcc`)
+
+### Fixed — later 1.4.0 work
+
+- **`session-briefing.js`** — Now reads `staleThreshold` from `settings.json` instead of
+  a hardcoded value; also renamed the test script and corrected the README install path.
+  (`51562d0`)
+
+### Hardened — portfolio-grade pass (2026-06-08, shipped under 1.4.0)
+
+- **`scripts/protect-data.js`** — New PreToolUse guard that blocks direct `Write`/`Edit`
+  to `data/*.json`, enforcing the write-through-CRUD rule. Wired into `hooks/hooks.json`.
+  (`f07bd9d`)
+- **Test suite expanded 21 → 38 checks** — Added coverage for candidate-profile,
+  draft-followups, analytics, save-discovered-jobs, google-calendar/tasks dry-run,
+  stale-reminders, the validate-data and protect-data hooks, score-job, and restore
+  preview.
+- **`scripts/validate-data.js`** — Now handles `candidate-profile.json` as a single
+  object rather than an array.
+- **All 14 agents pinned to full model IDs** — Migrated from `sonnet`/`haiku` shorthand
+  to explicit model IDs. Added `context: fork` to the `mock-interview` (with
+  `effort: high`) and `follow-up` (Gmail MCP isolation) skills.
+- **`.github/SECURITY.md`** — Data-privacy, credential-handling, and vulnerability-
+  disclosure guidance. CI secret-scan expanded to detect GitHub PATs (classic +
+  fine-grained) and Slack bot tokens.
+- **Metadata & housekeeping** — Fixed placeholder author fields in
+  `plugin.json`/`marketplace.json`, added a CI badge to the README, expanded
+  `.gitignore`, and removed the leftover `task.md` session artifact.
 
 ---
 
