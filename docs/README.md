@@ -10,6 +10,7 @@
 | Understand the system design | [engineering/architecture/overview.md](engineering/architecture/overview.md) |
 | Set up a dev environment | [engineering/build-and-release/development-workflow.md](engineering/build-and-release/development-workflow.md) |
 | See what CI checks | [engineering/build-and-release/ci-workflow.md](engineering/build-and-release/ci-workflow.md) |
+| Version + cut a release | [engineering/build-and-release/versioning.md](engineering/build-and-release/versioning.md) |
 | Read design decisions | [engineering/decisions/README.md](engineering/decisions/README.md) |
 | Contribute | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | See what changed | [CHANGELOG.md](CHANGELOG.md) |
@@ -38,7 +39,8 @@ docs/
     │   └── overview.md         ← layers, data flow, design rationale
     ├── build-and-release/
     │   ├── development-workflow.md
-    │   └── ci-workflow.md
+    │   ├── ci-workflow.md
+    │   └── versioning.md          ← SemVer + changelog + release policy
     └── decisions/
         ├── README.md           ← ADR index
         └── 001-local-json-store.md
