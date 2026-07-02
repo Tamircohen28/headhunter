@@ -56,7 +56,7 @@ fi
 if [[ -d "$CURSOR_RULES" ]]; then
   ALWAYS=0
   while IFS= read -r f; do
-    grep -qE '^alwaysApply:\s*true' "$f" 2>/dev/null && ALWAYS=$((ALWAYS + 1)) || true
+    if grep -qE '^alwaysApply:\s*true' "$f" 2>/dev/null; then ALWAYS=$((ALWAYS + 1)); fi
   done < <(find "$CURSOR_RULES" -maxdepth 1 -name '*.mdc' 2>/dev/null)
   if (( ALWAYS > 2 )); then
     echo "WARN: $ALWAYS rules have alwaysApply: true (recommended max: 2)" >&2
