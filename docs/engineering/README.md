@@ -8,6 +8,7 @@ Fast-lane table for contributors and maintainers.
 | Understand the full storage model + pipelines | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Set up a dev environment | [build-and-release/development-workflow.md](build-and-release/development-workflow.md) |
 | Understand what CI checks and why | [build-and-release/ci-workflow.md](build-and-release/ci-workflow.md) |
+| Know when to bump the version + how to cut a release | [build-and-release/versioning.md](build-and-release/versioning.md) |
 | Read design decisions | [decisions/README.md](decisions/README.md) |
 | Contribute | [../CONTRIBUTING.md](../CONTRIBUTING.md) |
 

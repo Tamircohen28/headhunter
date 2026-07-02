@@ -198,3 +198,12 @@ bash scripts/test.sh    # 21 checks across all core features — run after any c
 ```
 
 All 21 should pass. If any fail, check that `data/` exists and `node scripts/crud.js seed` ran.
+
+## Versioning & changelog
+
+- Any user-facing change gets a `CHANGELOG.md` entry under `## [Unreleased]` (grouped
+  `Added` / `Changed` / `Fixed` / `Removed`). A behavior change without one is incomplete.
+- Do **not** hand-edit the `version` in `.claude-plugin/plugin.json` or push git tags —
+  the Release workflow owns those.
+- Follow SemVer when deciding the next version. Full policy:
+  [`docs/engineering/build-and-release/versioning.md`](docs/engineering/build-and-release/versioning.md).
