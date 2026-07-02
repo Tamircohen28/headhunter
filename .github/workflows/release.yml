@@ -27,10 +27,26 @@ jobs:
       - name: Run tests before tagging
         run: bash scripts/test.sh
 
-      - name: Create and push tag
+      - name: Bump version in plugin.json
+        run: |
+          jq --arg v "${{ github.event.inputs.version }}" '.version = $v' \
+            .claude-plugin/plugin.json > /tmp/plugin.json
+          mv /tmp/plugin.json .claude-plugin/plugin.json
+
+      - name: Commit version bump
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/plugin.json
+          if git diff --cached --quiet; then
+            echo "No manifest changes (already at ${{ github.event.inputs.version }}) — skipping commit"
+          else
+            git commit -m "chore(release): bump version to ${{ github.event.inputs.version }}"
+            git push
+          fi
+
+      - name: Create and push tag
+        run: |
           git tag "v${{ github.event.inputs.version }}"
           git push origin "v${{ github.event.inputs.version }}"
 

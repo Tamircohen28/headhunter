@@ -47,6 +47,15 @@ jobs:
       - name: Run self-test suite
         run: bash scripts/test.sh
 
+  manifest-version-alignment:
+    name: Manifest/tag version alignment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - run: bash scripts/check-manifest-version-alignment.sh .
+
   secret-scan:
     name: Secret scan
     runs-on: ubuntu-latest
