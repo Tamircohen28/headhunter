@@ -1,4 +1,4 @@
-.PHONY: install test lint seed clean
+.PHONY: install test lint agent-check seed clean
 
 install:
 	@echo "HeadHunter has no npm dependencies for the core CRM."
@@ -10,6 +10,9 @@ test:
 lint:
 	@which shellcheck >/dev/null 2>&1 && shellcheck scripts/parse-csv-import.sh scripts/test.sh || echo "shellcheck not found — skipping shell lint"
 	@node --check scripts/crud.js scripts/lib.js scripts/enums.js scripts/dashboard.js scripts/analytics.js
+
+agent-check:
+	bash scripts/agent-check.sh
 
 seed:
 	node scripts/crud.js seed

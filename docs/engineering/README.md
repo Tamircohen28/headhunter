@@ -5,11 +5,11 @@ Fast-lane table for contributors and maintainers.
 | I need to… | Go to |
 |------------|-------|
 | Understand the system design | [architecture/overview.md](architecture/overview.md) |
-| Understand the full storage model + pipelines | [../ARCHITECTURE.md](../ARCHITECTURE.md) |
+| Understand the full storage model + pipelines | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Set up a dev environment | [build-and-release/development-workflow.md](build-and-release/development-workflow.md) |
 | Understand what CI checks and why | [build-and-release/ci-workflow.md](build-and-release/ci-workflow.md) |
 | Read design decisions | [decisions/README.md](decisions/README.md) |
-| Contribute | [../CONTRIBUTING.md](../CONTRIBUTING.md) |
+| Contribute | [../../CONTRIBUTING.md](../../CONTRIBUTING.md) |
 
 ## Codebase orientation
 

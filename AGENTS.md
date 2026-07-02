@@ -6,7 +6,7 @@ All data lives in `data/*.json` (gitignored). All operations go through Node.js 
 
 Requires Node.js ≥ 18. No npm install needed.
 
-**Architecture:** local JSON store in `data/` (no DB server). See `docs/ARCHITECTURE.md` for pipelines, entity layout, and integrations.
+**Architecture:** local JSON store in `data/` (no DB server). See `docs/engineering/ARCHITECTURE.md` for pipelines, entity layout, and integrations.
 
 ---
 
