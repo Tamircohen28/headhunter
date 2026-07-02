@@ -5,6 +5,8 @@ alwaysApply: false
 
 # HeadHunter — Job Search Co-pilot
 
+> Canonical agent instructions live in [`AGENTS.md`](../../AGENTS.md). This rule is a thin Cursor adapter; when the two overlap, `AGENTS.md` wins.
+
 You are operating in the HeadHunter job-search plugin repo. All data lives in `data/*.json`. All operations go through the Node scripts in `scripts/`. **Never edit `data/*.json` by hand** — use `crud.js`.
 
 ## Data operations

@@ -1,5 +1,7 @@
 # HeadHunter — Claude Code Guide
 
+> **Agent instructions:** [`AGENTS.md`](AGENTS.md) is the canonical, tool-agnostic agent guide (shared by Claude Code, Cursor, and Codex). This file layers Claude Code-specific guidance on top; when the two overlap, `AGENTS.md` is the source of truth.
+
 HeadHunter is a local-first AI job-search co-pilot. It manages a full job-search lifecycle: CRM pipeline, interview prep, CV tailoring, job discovery, salary negotiation, network mapping, and analytics — all driven by Claude Code skills and Node.js scripts. All CRM data lives in `data/*.json` (gitignored). No database server, no npm install for the core runtime.
 
 ---
@@ -16,7 +18,7 @@ HeadHunter is a local-first AI job-search co-pilot. It manages a full job-search
 | `scripts/enums.js` | Pipeline stages, terminal states, allowed enum values |
 | `scripts/test.sh` | 21-check self-test suite |
 | `references/data-model.md` | Field-level schema for all entities |
-| `docs/ARCHITECTURE.md` | System layers, storage model, pipelines |
+| `docs/engineering/ARCHITECTURE.md` | System layers, storage model, pipelines |
 | `settings.json` | Plugin defaults (currency, stale threshold, research params) |
 | `.mcp.json` | MCP server definitions for Claude Code |
 | `.claude-plugin/plugin.json` | Plugin manifest |

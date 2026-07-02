@@ -13,7 +13,16 @@ A full-lifecycle job-search assistant: pipeline CRM, interview prep, CV tailorin
 Works with **Claude Code**, **Cursor**, and **OpenAI Codex CLI**.  
 Requires Node.js ≥ 18. No npm dependencies.
 
-**Storage:** there is no separate database server — all CRM data lives in local JSON under `data/` (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture, pipeline, and integration model).
+**Storage:** there is no separate database server — all CRM data lives in local JSON under `data/` (see [docs/engineering/ARCHITECTURE.md](docs/engineering/ARCHITECTURE.md) for the full architecture, pipeline, and integration model).
+
+---
+
+## Prerequisites
+
+- **Node.js ≥ 18** — the only hard requirement; check with `node --version`.
+- **No `npm install`** — the core CRM runs on Node's standard library alone.
+- One of **Claude Code**, **Cursor**, or **OpenAI Codex CLI** to drive the agent workflows (optional — the scripts also run standalone).
+- Optional integrations (Notion, LinkedIn, Todoist, Twilio, Google) read credentials from a local `.env`; copy `.env.example` and fill in only what you use.
 
 ---
 
@@ -33,7 +42,7 @@ Rules auto-load from `.cursor/rules/`. MCP servers load from `.cursor/mcp.json`.
 
 ---
 
-## First run
+## Quick start
 ```bash
 node scripts/crud.js seed        # load 5 demo applications
 node scripts/candidate-profile.js show   # view your profile (set up with /headhunter:setup)
@@ -108,7 +117,7 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 | [docs/user/quick-start.md](docs/user/quick-start.md) | Install → seed → first scan in 5 minutes |
 | [docs/user/concepts.md](docs/user/concepts.md) | Pipeline, skills, agents, data model explained |
 | [docs/user/troubleshooting.md](docs/user/troubleshooting.md) | Common errors + fixes |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Storage model, system layers, pipelines, MCP vs scripts |
+| [docs/engineering/ARCHITECTURE.md](docs/engineering/ARCHITECTURE.md) | Storage model, system layers, pipelines, MCP vs scripts |
 | [docs/engineering/architecture/overview.md](docs/engineering/architecture/overview.md) | Layer breakdown, data flow, design invariants |
 | [docs/engineering/decisions/001-local-json-store.md](docs/engineering/decisions/001-local-json-store.md) | ADR: why flat JSON over SQLite/MongoDB |
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | How to contribute |

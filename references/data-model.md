@@ -1,6 +1,6 @@
 # HeadHunter Data Model (source of truth)
 
-> **Architecture overview** (storage layout, pipelines, MCP vs scripts): [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
+> **Architecture overview** (storage layout, pipelines, MCP vs scripts): [docs/engineering/ARCHITECTURE.md](../docs/engineering/ARCHITECTURE.md)
 
 There is **no SQL or hosted database** — the “database” is a set of JSON files under the data directory.
 
