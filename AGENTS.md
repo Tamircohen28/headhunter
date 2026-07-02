@@ -8,6 +8,10 @@ Requires Node.js ≥ 18. No npm install needed.
 
 **Architecture:** local JSON store in `data/` (no DB server). See `docs/engineering/ARCHITECTURE.md` for pipelines, entity layout, and integrations.
 
+**Deeper guidance:** [`docs/agent-guidelines/`](docs/agent-guidelines/) expands on [testing](docs/agent-guidelines/testing.md), [security](docs/agent-guidelines/security.md), and [style](docs/agent-guidelines/style.md). This file (`AGENTS.md`) remains the canonical source; `CLAUDE.md` and `.cursor/rules/*.mdc` are thin adapters that point here.
+
+Validate the agent surface anytime with `make agent-check`.
+
 ---
 
 ## Core data operations

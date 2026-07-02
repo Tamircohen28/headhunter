@@ -21,7 +21,7 @@ jobs:
       - name: Shell lint
         run: |
           sudo apt-get install -y shellcheck
-          shellcheck scripts/parse-csv-import.sh scripts/test.sh scripts/agent-check.sh
+          shellcheck scripts/parse-csv-import.sh scripts/test.sh scripts/agent-check.sh scripts/check-agent-drift.sh
 
   agent-check:
     name: Agent check
@@ -33,6 +33,8 @@ jobs:
           node-version: '20'
       - name: Validate agent surface
         run: bash scripts/agent-check.sh
+      - name: Check agent drift
+        run: bash scripts/check-agent-drift.sh
 
   test:
     name: Test

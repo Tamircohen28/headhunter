@@ -120,7 +120,7 @@ node scripts/candidate-profile.js show   # view your profile (set up with /headh
 | [docs/engineering/ARCHITECTURE.md](docs/engineering/ARCHITECTURE.md) | Storage model, system layers, pipelines, MCP vs scripts |
 | [docs/engineering/architecture/overview.md](docs/engineering/architecture/overview.md) | Layer breakdown, data flow, design invariants |
 | [docs/engineering/decisions/001-local-json-store.md](docs/engineering/decisions/001-local-json-store.md) | ADR: why flat JSON over SQLite/MongoDB |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | How to contribute |
 | [references/data-model.md](references/data-model.md) | Entity fields and enums |
 | [AGENTS.md](AGENTS.md) | Agent/CLI quick reference |
 

@@ -68,7 +68,7 @@ When adding a new skill:
 ## Branching and commits
 
 - Branch from `main`: `git checkout -b feat/my-change`
-- Commit format: `feat(scope): short description` (see [CONTRIBUTING.md](../../../CONTRIBUTING.md))
+- Commit format: `feat(scope): short description` (see [CONTRIBUTING.md](../../CONTRIBUTING.md))
 - Open a PR against `main`
 
 ---
