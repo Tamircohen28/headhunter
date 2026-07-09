@@ -4,9 +4,19 @@
 
 # HeadHunter — AI Job Search Co-pilot
 
-[![CI](https://github.com/TamirCohen28/headhunter/actions/workflows/ci.yml/badge.svg)](https://github.com/TamirCohen28/headhunter/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Node.js ≥ 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+<p align="center">
+  <a href="https://github.com/Tamircohen28"><img src="https://img.shields.io/badge/author-Tamir%20Cohen-181717?logo=github" alt="Tamir Cohen" /></a>
+  <a href="https://github.com/TamirCohen28/headhunter/actions/workflows/ci.yml"><img src="https://github.com/TamirCohen28/headhunter/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href=".claude-plugin/plugin.json"><img src="https://img.shields.io/badge/version-1.4.7-blue" alt="version 1.4.7" /></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node.js ≥ 18" /></a>
+</p>
+
+<p align="center">
+  <a href="docs/engineering/build-and-release/platform-targets.json"><img src="https://img.shields.io/badge/Claude%20Code-1.0.0-blueviolet" alt="Claude Code 1.0.0" /></a>
+  <a href="docs/engineering/build-and-release/platform-targets.json"><img src="https://img.shields.io/badge/Cursor-0.45.0-000000" alt="Cursor 0.45.0" /></a>
+  <a href="docs/engineering/build-and-release/platform-targets.json"><img src="https://img.shields.io/badge/Codex-0.40.0-412991" alt="Codex 0.40.0" /></a>
+</p>
 
 A full-lifecycle job-search assistant: pipeline CRM, interview prep, CV tailoring, job discovery, salary negotiation, network mapping, and analytics — all from your terminal.
 
@@ -28,9 +38,13 @@ Requires Node.js ≥ 18. No npm dependencies.
 
 ## Install
 
+```bash
+make install   # verify Node >= 18 and print per-platform steps
+```
+
 ### Claude Code
 ```bash
-/plugin marketplace add /path/to/headhunter
+/plugin marketplace add Tamircohen28/headhunter
 /plugin install headhunter@headhunter-marketplace
 ```
 
@@ -38,7 +52,9 @@ Requires Node.js ≥ 18. No npm dependencies.
 Rules auto-load from `.cursor/rules/`. MCP servers load from `.cursor/mcp.json`. Both are included in this repo — open the repo root in Cursor and they're active immediately.
 
 ### OpenAI Codex CLI
-`AGENTS.md` at the repo root is read automatically by Codex. No install step needed — clone the repo and run `codex` from it.
+`AGENTS.md` at the repo root is read automatically by Codex. Clone the repo and run `codex` from it.
+
+Refresh: `make update` · Remove: `make uninstall`
 
 ---
 

@@ -8,7 +8,7 @@ FAIL=0
 note() { printf '  %s %s\n' "$1" "$2"; }
 
 echo "== JSON manifests =="
-for f in .claude-plugin/plugin.json .mcp.json settings.json hooks/hooks.json .cursor/mcp.json; do
+for f in .claude-plugin/plugin.json .cursor-plugin/plugin.json .codex-plugin/plugin.json .mcp.json settings.json hooks/hooks.json .cursor/mcp.json; do
   [ -f "$f" ] || { note "--" "$f (absent, skipped)"; continue; }
   if node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" 2>/dev/null; then
     note "ok" "$f"

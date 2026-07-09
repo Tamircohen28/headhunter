@@ -1,0 +1,15 @@
+{
+  "name": "headhunter",
+  "version": "1.4.7",
+  "description": "Job search CRM with pipeline, interviews, tasks, and Gmail/Calendar/Notion/Todoist integrations.",
+  "author": {
+    "name": "Tamir Cohen",
+    "url": "https://github.com/Tamircohen28"
+  },
+  "homepage": "https://github.com/Tamircohen28/headhunter",
+  "repository": "https://github.com/Tamircohen28/headhunter",
+  "license": "MIT",
+  "keywords": ["jobs", "career", "pipeline", "interviews", "notion", "gmail"],
+  "skills": ["./skills"],
+  "mcpServers": "./.mcp.json"
+}

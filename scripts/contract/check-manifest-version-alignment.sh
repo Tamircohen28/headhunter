@@ -57,10 +57,8 @@ fi
 if [[ "$MANIFESTS_ONLY" != true ]]; then
   # Latest release tag, if any (vX.Y.Z convention). A repo with no tags yet
   # hasn't cut a first release — nothing to drift from.
-  LATEST_TAG_VER=""
-  if tags=$(cd "$ROOT" && git tag -l 'v[0-9]*.[0-9]*.[0-9]*' 2>/dev/null); then
-    LATEST_TAG_VER=$(echo "$tags" | sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)
-  fi
+  LATEST_TAG_VER=$(cd "$ROOT" && git tag -l 'v[0-9]*.[0-9]*.[0-9]*' 2>/dev/null \
+    | sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 || true)
 
   if [[ -n "$LATEST_TAG_VER" && "$LATEST_TAG_VER" != "$MANIFEST_VERSION" ]]; then
     err "manifest version ($MANIFEST_VERSION) does not match latest release tag (v$LATEST_TAG_VER) — bump manifests and tags together via the release workflow, never by hand"
