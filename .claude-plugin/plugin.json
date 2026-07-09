@@ -9,6 +9,8 @@
   "repository": "https://github.com/Tamircohen28/headhunter",
   "license": "MIT",
   "keywords": ["jobs", "career", "pipeline", "interviews", "notion", "gmail"],
+  "skills": ["./skills"],
+  "mcpServers": "./.mcp.json",
   "engines": {
     "node": ">=18.0.0",
     "claude-code": ">=1.0.0"
